@@ -17,7 +17,7 @@ h1 {
     -webkit-font-smoothing: antialiased;
 }
 
-section {
+form {
     display: block;
 }
 
@@ -40,4 +40,8 @@ input[value="search"] {
     background: linear-gradient(to right, rgba(30,213,169, 1) 0%, rgba(1,180,228, 1) 100%);
     position: absolute;
     right: -1px;
+}
+
+p {
+    color: #FFF;
 }
