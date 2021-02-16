@@ -5,8 +5,8 @@ from app import app
 tmdb.API_KEY = '47403e3942da0c88526896aa3195bb62'
 
 @app.route('/')
-def main():
-    return render_template('main.html')
+def index():
+    return render_template('index.html')
 
 @app.route('/round_start')
 def round_start():

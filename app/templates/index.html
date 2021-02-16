@@ -1,6 +1,8 @@
 <head>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
     <script type=text/javascript>
         $(function() {
           $('#submit_search').bind('click', function() {
@@ -18,7 +20,7 @@
     <h1>THE MOVIE GAME</h1>
     <form>
         <input type="text" id="search" placeholder="search for an actor or movie...">
-        <input type="submit" id="submit_search" value="search">
+        <input type="submit" id="submit_search" value="submit">
     </form>
     <p id="result"></p>
 </body>

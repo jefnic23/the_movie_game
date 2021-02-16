@@ -29,7 +29,7 @@ form {
     text-indent: 1rem;
 }
 
-input[value="search"] {
+input[value="submit"] {
     display: inline-flex;
     justify-content: center;
     align-content: center;
