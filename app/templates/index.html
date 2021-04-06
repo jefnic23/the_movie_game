@@ -1,8 +1,10 @@
 <head>
+    <title>The Movie Game</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src="{{ url_for('static', filename='themoviedb.js') }}"></script>
     <script type=text/javascript>
         $(function() {
           $('#submit_search').bind('click', function() {
@@ -14,6 +16,16 @@
             return false;
           });
         });
+
+        function successCB(data) {
+          console.log("Success callback: " + data);
+        };
+                
+        function errorCB(data) {
+          console.log("Error callback: " + data);
+        };
+
+        console.log(theMovieDb.search.getKeyword({'query': "hoffman"}, successCB, errorCB))
     </script>
 </head>
 <body>

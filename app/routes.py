@@ -13,12 +13,15 @@ def round_start():
     search = tmdb.Search()
     q = request.args.get('search', 0, type=str)
     response = search.movie(query=q)
-    movie_id = search.results[0]['id']
     genres = [16, 99, 10402, 10770]
     return jsonify(result=[t['original_title'] for t in response['results'] if not any(x in t['genre_ids'] for x in genres) if t['genre_ids']])
 
 # look for movie by string search and get id
 # response = search.movie(query='shawshank')
+# movie_id = search.results[0]['id']
+
+# look for actor by string search and get id
+# response = search.person(query='dustin hoffman')
 # movie_id = search.results[0]['id']
 
 # get movie metadata from movie id
