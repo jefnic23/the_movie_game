@@ -1,5 +1,4 @@
-from flask import render_template, request, redirect, url_for, jsonify
-import tmdbsimple as tmdb
+from flask import render_template
 from app import app
 
 @app.route('/')
