@@ -1,52 +1,61 @@
 <head>
     <title>The Movie Game</title>
+    <link rel="icon" href="{{ url_for('static', filename='icon.png') }}">
+	  <link rel="shortcut icon" href="{{ url_for('static', filename='icon.png') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src="{{ url_for('static', filename='config.js') }}"></script>
     <script src="{{ url_for('static', filename='themoviedb.js') }}"></script>
-    <script type=text/javascript>
-        $(function() {
-          $('#submit_search').bind('click', function() {
-            $.getJSON('/round_start', {
-              search: $('input#search').val(),
-            }, function(data) {
-              $("#result").text(data.result);
-            });
-            return false;
-          });
-        });
-
-    </script>
 </head>
 <body>
     <img src="{{ url_for('static', filename='logo.png') }}" class="logo"/>
-    <form>
+    <form id="search_form">
         <input type="text" id="search" placeholder="search for an actor or movie...">
-        <input type="submit" id="submit_search" value="submit">
+        <input type="submit" onClick="getQuery()">
     </form>
-    <p id="result"></p>
+    <div id="results-container"></div>
     <script>
 
-      var genres = [16, 99, 10402, 10770]
+      var form = document.getElementById("search_form");
+      function handleForm(event) {
+        event.preventDefault();
+      }
+      form.addEventListener("submit", handleForm);
+
+      const genres = [16, 99, 10402, 10770];
+      var container = document.getElementById("results-container");
+      var results = document.createElement("ul");
+      results.setAttribute("id", "results");
 
       function successCB(data) {
         data = JSON.parse(data);
         for (var i = 0; i < data.results.length; i++) {
-          if (data.results[i].media_type === "movie" && !data.results[i].genre_ids.some(r => genres.includes(r)) && data.results[i].genre_ids.length) {
-            console.log(data.results[i].title);
-          } else if (data.results[i].media_type === "person") {
-            console.log(data.results[i].name);
+          if (data.results[i].media_type === "movie" && data.results[i].genre_ids.length && !data.results[i].genre_ids.some(r => genres.includes(r))) {
+            var li = document.createElement('li');
+            li.innerHTML = data.results[i].title + " (movie)";
+            li.setAttribute('value', data.results[i].id);
+            results.appendChild(li);
+          } else if (data.results[i].media_type === "person" && data.results[i].known_for_department === "Acting") {
+            var li = document.createElement('li');
+            li.innerHTML = data.results[i].name + " (person)";
+            li.setAttribute('value', data.results[i].id);
+            results.appendChild(li);
           }
-          console.log(data.results[i]);
+          console.log(data.results[i])
         }
+        container.appendChild(results)
       };
               
       function errorCB(data) {
         console.log("Error callback: " + data);
       };
 
-      theMovieDb.search.getMulti({'query': "hoffman"}, successCB, errorCB)
+      function getQuery() {
+        var q = document.getElementById("search").value;
+        theMovieDb.search.getMulti({'query': q}, successCB, errorCB);
+      };
 
     </script>
 </body>

@@ -2,19 +2,9 @@ from flask import render_template, request, redirect, url_for, jsonify
 import tmdbsimple as tmdb
 from app import app
 
-tmdb.API_KEY = '47403e3942da0c88526896aa3195bb62'
-
 @app.route('/')
 def index():
     return render_template('index.html')
-
-@app.route('/round_start')
-def round_start():
-    search = tmdb.Search()
-    q = request.args.get('search', 0, type=str)
-    response = search.movie(query=q)
-    genres = [16, 99, 10402, 10770]
-    return jsonify(result=[t['original_title'] for t in response['results'] if not any(x in t['genre_ids'] for x in genres) if t['genre_ids']])
 
 # look for movie by string search and get id
 # response = search.movie(query='shawshank')
