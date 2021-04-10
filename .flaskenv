@@ -1,1 +1,0 @@
-FLASK_APP=the_movie_game.py

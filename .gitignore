@@ -1,1 +1,8 @@
 app/static/config.js
+__pycache__/
+.vscode/
+.flaskenv
+pyvenv.cfg
+Lib/
+app/__pycache__/
+Scripts/
