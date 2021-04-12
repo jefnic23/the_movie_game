@@ -18,6 +18,7 @@
     <form action="{{ url_for('login') }}" method='POST'>
         {{ displayField(form.username, "Username", autocomplete="off", autofocus=true)}}
         {{ displayField(form.password, "Password") }}
+        {{ form.remember_me }} {{ form.remember_me.label }}
         <div>
             {{ form.submit_button }}
         </div>

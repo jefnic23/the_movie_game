@@ -35,7 +35,7 @@ def login():
 
     if login_form.validate_on_submit():
         user_object = User.query.filter_by(username=login_form.username.data).first()
-        login_user(user_object)
+        login_user(user_object, remember=login_form.remember_me.data)
         if current_user.is_authenticated:
             return redirect(url_for('game'))
 

@@ -7,3 +7,4 @@ Lib/
 app/__pycache__/
 Scripts/
 config.py
+Include/

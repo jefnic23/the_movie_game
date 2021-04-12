@@ -7,7 +7,7 @@
 <body>
     <h1>Get started</h1>
 
-    <form action="{{ url_for('index') }}", method="POST">
+    <form action="{{ url_for('register') }}", method="POST">
         {% from "form_helper.html" import displayField %}
         {{ displayField(form.username, "Username", autocomplete="off", autofocus=true)}}
         {{ displayField(form.password, "Password") }}
