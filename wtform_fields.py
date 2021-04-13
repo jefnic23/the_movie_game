@@ -2,7 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField
 from wtforms.fields.core import BooleanField
 from wtforms.fields.simple import SubmitField
-from wtforms.validators import InputRequired, Length, EqualTo, ValidationError
+from wtforms.validators import DataRequired, InputRequired, Length, EqualTo, ValidationError, Email
 from passlib.hash import pbkdf2_sha256
 from models import User
 
@@ -20,6 +20,7 @@ class RegistrationForm(FlaskForm):
     username = StringField('username_label', 
         validators=[InputRequired(message="Username required"), 
         Length(min=4, max=25, message="Username must be between 4 and 25 characters")])
+    email = StringField('email_label', validators=[Email()])
     password = PasswordField('password_label',
         validators=[InputRequired(message="Password required"), 
         Length(min=8, message="Password must be at least 8 characters")])
@@ -33,8 +34,17 @@ class RegistrationForm(FlaskForm):
         if user_object:
             raise ValidationError("Username already exists.")
 
+    def validate_email(self, email):
+        user_object = User.query.filter_by(email=email.data).first()
+        if user_object:
+            raise ValidationError("Account with this email already exists.")
+
 class LoginForm(FlaskForm):
     username = StringField('username_label', validators=[InputRequired(message="Username required")])
     password = PasswordField('password_label', validators=[InputRequired(message="Password required"), invalid_credentials])
     remember_me = BooleanField('Remember me')
     submit_button = SubmitField('Login')
+
+class ResetPasswordForm(FlaskForm):
+    email = StringField("Email", validators=[DataRequired(), Email()])
+    submit = SubmitField("Request Password Reset")

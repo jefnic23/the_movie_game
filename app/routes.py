@@ -2,6 +2,7 @@ from flask import render_template, redirect, url_for, flash
 from flask_login import LoginManager, login_user, current_user, login_required, logout_user
 from wtform_fields import *
 from models import *
+from email import send_password_reset_email
 from app import app
 
 login = LoginManager(app)
@@ -21,10 +22,11 @@ def register():
     if reg_form.validate_on_submit():
         username = reg_form.username.data
         password = reg_form.password.data
+        email = reg_form.email.data
 
         hashed_pswd = pbkdf2_sha256.hash(password)
 
-        user = User(username=username, password=hashed_pswd)
+        user = User(username=username, password=hashed_pswd, email=email)
         db.session.add(user)
         db.session.commit()
 
@@ -47,9 +49,41 @@ def login():
 
 @app.route('/logout', methods=['GET'])
 def logout():
+    if current_user.is_anonymous:
+        return redirect(url_for("index"))
     logout_user()
     flash("You have logged out successfully", "success")
     return redirect(url_for("login"))
+
+@app.route("/reset_password_request", methods=['GET', 'POST'])
+def reset_password_request():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    form = ResetPasswordRequestForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user:
+            send_password_reset_email(user)
+        flash("Check your email for instructions on how to reset your password")
+        return redirect(url_for('login'))
+    return render_template("reset_password_request.html", form=form)
+
+@app.route('/reset_password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    user = User.verify_reset_password_token(token)
+    if not user:
+        return redirect(url_for('index'))
+    form = ResetPasswordRequestForm()
+    if form.validate_on_submit():
+        password = form.password.data
+        hashed_pswd = pbkdf2_sha256.hash(password)
+        User(password=hashed_pswd)
+        db.session.commit()
+        flash('Your password has been reset')
+        return redirect(url_for('login'))
+    return render_template('reset_password.html', form=form)
 
 @app.route('/game', methods=['GET', 'POST'])
 def game():
