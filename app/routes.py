@@ -11,6 +11,10 @@ login.init_app(app)
 def load_user(id):
     return User.query.get(int(id))
 
+@app.route('/')
+def index():
+    return render_template("index.html")
+
 @app.route("/register", methods=['GET', 'POST'])
 def register():
     reg_form = RegistrationForm()

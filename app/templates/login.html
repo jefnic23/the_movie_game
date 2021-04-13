@@ -1,16 +1,6 @@
-<head>
-    <title>The Movie Game</title>
-    <link rel="icon" href="{{ url_for('static', filename='icon.png') }}">
-	<link rel="shortcut icon" href="{{ url_for('static', filename='icon.png') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-</head>
-<body>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            Category: {{ messages[0][0] }}
-            {{ messages[0][1]}}
-        {% endif %}
-    {% endwith %}
+{% extends "layout.html" %}
+
+{% block content %}
 
     {% from "form_helper.html" import displayField %}
     <h2>Login</h2>
@@ -24,4 +14,5 @@
         </div>
         {{ form.csrf_token }}
     </form>
-</body>
+
+{% endblock %}

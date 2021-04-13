@@ -1,10 +1,7 @@
-<head>
-    <title>The Movie Game</title>
-    <link rel="icon" href="{{ url_for('static', filename='icon.png') }}">
-	<link rel="shortcut icon" href="{{ url_for('static', filename='icon.png') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-</head>
-<body>
+{% extends "layout.html" %}
+
+{% block content %}
+
     <h1>Get started</h1>
 
     <form action="{{ url_for('register') }}", method="POST">
@@ -17,4 +14,5 @@
         </div>
         {{ form.csrf_token }}
     </form>
-</body>
+
+{% endblock %}

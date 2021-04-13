@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>The Movie Game</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="icon" href="{{ url_for('static', filename='icon.png') }}">
+        <link rel="shortcut icon" href="{{ url_for('static', filename='icon.png') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    </head>
+    <body>
+        <img src="{{ url_for('static', filename='logo.png') }}" class="logo"/>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                Category: {{ messages[0][0] }}
+                {{ messages[0][1] }}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}
+        {% endblock %}
+
+    </body>
+</html>
