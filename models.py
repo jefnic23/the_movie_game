@@ -14,6 +14,9 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
 
+    def set_password(self, password):
+        self.password = password
+
     def get_reset_password_token(self, expires_in=600):
         return jwt.encode({'reset_password': self.id, 'exp': time() + expires_in}, app.config['SECRET_KEY'], algorithm='HS256')
 

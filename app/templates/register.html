@@ -3,8 +3,7 @@
 {% block content %}
 
     <h1>Get started</h1>
-
-    <form action="{{ url_for('register') }}", method="POST">
+    <form action="", method="POST">
         {% from "form_helper.html" import displayField %}
         {{ displayField(form.username, "Username", autocomplete="off", autofocus=true) }}
         {{ displayField(form.email, "Email") }}

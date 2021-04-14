@@ -2,7 +2,7 @@ from flask import render_template, redirect, url_for, flash
 from flask_login import LoginManager, login_user, current_user, login_required, logout_user
 from wtform_fields import *
 from models import *
-from email import send_password_reset_email
+from app.email import send_password_reset_email
 from app import app
 
 login = LoginManager(app)
@@ -75,11 +75,11 @@ def reset_password(token):
     user = User.verify_reset_password_token(token)
     if not user:
         return redirect(url_for('index'))
-    form = ResetPasswordRequestForm()
+    form = ResetPasswordForm()
     if form.validate_on_submit():
         password = form.password.data
         hashed_pswd = pbkdf2_sha256.hash(password)
-        User(password=hashed_pswd)
+        user.set_password(hashed_pswd)
         db.session.commit()
         flash('Your password has been reset')
         return redirect(url_for('login'))
