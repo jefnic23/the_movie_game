@@ -3,7 +3,10 @@ from flask_login import LoginManager, login_user, current_user, login_required, 
 from wtform_fields import *
 from models import *
 from app.email import send_password_reset_email
+from flask_socketio import SocketIO, send, emit, join_room, leave_room
 from app import app
+
+socketio = SocketIO(app)
 
 login = LoginManager(app)
 login.init_app(app)
@@ -90,4 +93,14 @@ def game():
     if not current_user.is_authenticated:
         flash("Please login.", "danger")
         return redirect(url_for('login'))
-    return render_template('game.html')
+    return render_template('game.html', username=current_user.username)
+
+@socketio.on('message')
+def message(data):
+    send(data)
+
+@socketio.on('join')
+def join(data):
+    join_room(data['room'])
+
+socketio.run(app, debug=True)

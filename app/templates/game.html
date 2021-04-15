@@ -1,18 +1,25 @@
-<head>
-    <title>The Movie Game</title>
-    <link rel="icon" href="{{ url_for('static', filename='icon.png') }}">
-	<link rel="shortcut icon" href="{{ url_for('static', filename='icon.png') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <script src="{{ url_for('static', filename='config.js') }}"></script>
-    <script src="{{ url_for('static', filename='themoviedb.js') }}"></script>
-</head>
-<body>
-    <img src="{{ url_for('static', filename='logo.png') }}" class="logo"/>
-    <form id="search_form">
-        <input type="text" id="search" placeholder="search for an actor or movie...">
-        <input type="submit" onClick="getQuery()">
-    </form>
-    <div id="results-container"></div>
-    <div id='game-container'></div>
-    <script src="{{ url_for('static', filename='game.js') }}"></script>
-</body>
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>The Movie Game</title>
+        <link rel="icon" href="{{ url_for('static', filename='icon.png') }}">
+        <link rel="shortcut icon" href="{{ url_for('static', filename='icon.png') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+        <script src="{{ url_for('static', filename='config.js') }}"></script>
+        <script src="{{ url_for('static', filename='themoviedb.js') }}"></script>
+    </head>
+    <body>
+        <img src="{{ url_for('static', filename='logo.png') }}" class="logo"/>
+        <form id="search_form">
+            <input type="text" id="search" placeholder="search for an actor or movie...">
+            <input type="submit" onClick="getQuery()">
+        </form>
+        <div id="results-container"></div>
+        <div id='game-container'></div>
+        <script type='text/javascript'>
+            const username = `{{ username }}`;
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+        <script src="{{ url_for('static', filename='game.js') }}"></script>
+    </body>
+</html>

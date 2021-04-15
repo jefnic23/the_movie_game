@@ -1,3 +1,15 @@
+document.addEventListener('DOMContentLoaded', () => {
+    var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
+
+    function joinRoom(room) {
+        socket.emit('join', {'room': room});
+    }
+
+    let room = 'lounge';
+    joinRoom(room);
+
+});
+
 var round = [];
 var round_index = 0;
 var start = '';
