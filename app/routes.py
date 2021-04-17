@@ -7,17 +7,19 @@ from flask_socketio import SocketIO, send, emit, join_room, leave_room
 from app import app
 
 socketio = SocketIO(app)
-
 login = LoginManager(app)
 login.init_app(app)
+
 
 @login.user_loader
 def load_user(id):
     return User.query.get(int(id))
 
+
 @app.route('/')
 def index():
     return render_template("index.html")
+
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
@@ -26,29 +28,25 @@ def register():
         username = reg_form.username.data
         password = reg_form.password.data
         email = reg_form.email.data
-
         hashed_pswd = pbkdf2_sha256.hash(password)
-
         user = User(username=username, password=hashed_pswd, email=email)
         db.session.add(user)
         db.session.commit()
-
         flash('Registered successfully. Please login.', 'success')
         return redirect(url_for('login'))
-
     return render_template("register.html", form=reg_form)
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     login_form = LoginForm()
-
     if login_form.validate_on_submit():
         user_object = User.query.filter_by(username=login_form.username.data).first()
         login_user(user_object, remember=login_form.remember_me.data)
         if current_user.is_authenticated:
             return redirect(url_for('game'))
-
     return render_template("login.html", form=login_form)
+
 
 @app.route('/logout', methods=['GET'])
 def logout():
@@ -57,6 +55,7 @@ def logout():
     logout_user()
     flash("You have logged out successfully", "success")
     return redirect(url_for("login"))
+
 
 @app.route("/reset_password_request", methods=['GET', 'POST'])
 def reset_password_request():
@@ -70,6 +69,7 @@ def reset_password_request():
         flash("Check your email for instructions on how to reset your password")
         return redirect(url_for('login'))
     return render_template("reset_password_request.html", form=form)
+
 
 @app.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
@@ -88,6 +88,7 @@ def reset_password(token):
         return redirect(url_for('login'))
     return render_template('reset_password.html', form=form)
 
+
 @app.route('/game', methods=['GET', 'POST'])
 def game():
     if not current_user.is_authenticated:
@@ -95,12 +96,13 @@ def game():
         return redirect(url_for('login'))
     return render_template('game.html', username=current_user.username)
 
-@socketio.on('message')
-def message(data):
-    send(data)
 
 @socketio.on('join')
-def join(data):
-    join_room(data['room'])
+def on_join(data):
+    username = data['username']
+    room = data['room']
+    join_room(room)
+    emit('joined', {'msg': username + " has joined the " + room}, room=room)
+
 
 socketio.run(app, debug=True)

@@ -7,6 +7,7 @@
         <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
         <script src="{{ url_for('static', filename='config.js') }}"></script>
         <script src="{{ url_for('static', filename='themoviedb.js') }}"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
     </head>
     <body>
         <img src="{{ url_for('static', filename='logo.png') }}" class="logo"/>
@@ -16,10 +17,10 @@
         </form>
         <div id="results-container"></div>
         <div id='game-container'></div>
-        <script type='text/javascript'>
+        <div id="avatar-container"></div>
+        <script type="text/javascript">
             const username = `{{ username }}`;
         </script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
         <script src="{{ url_for('static', filename='game.js') }}"></script>
     </body>
 </html>

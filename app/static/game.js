@@ -2,11 +2,17 @@ document.addEventListener('DOMContentLoaded', () => {
     var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
 
     function joinRoom(room) {
-        socket.emit('join', {'room': room});
+        socket.emit('join', {'room': room, 'username': username});
     }
 
-    let room = 'lounge';
+    let room = 'Lounge';
     joinRoom(room);
+
+    socket.on('joined', data => {
+        var p = document.createElement('p');
+        p.innerHTML = data['msg'];
+        document.querySelector('#avatar-container').append(p);
+    })
 
 });
 
