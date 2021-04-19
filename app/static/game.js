@@ -1,20 +1,25 @@
-document.addEventListener('DOMContentLoaded', () => {
-    var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
+var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
 
-    function joinRoom(room) {
-        socket.emit('join', {'room': room, 'username': username});
-    }
+function joinRoom(room) {
+    socket.emit('join', {'room': room, 'username': username});
+}
 
-    let room = 'Lounge';
-    joinRoom(room);
+let room = 'Lounge';
+joinRoom(room);
 
-    socket.on('joined', data => {
-        var p = document.createElement('p');
-        p.innerHTML = data['msg'];
-        document.querySelector('#avatar-container').append(p);
-    })
+socket.on('joined', data => {
+    var div = document.createElement('div');
+    var img = document.createElement('img');
+    var player = document.createElement('h2');
 
-});
+    div.setAttribute("class", "card");
+    img.setAttribute("src", avatar);
+    img.setAttribute("class", "card-icon");
+    player.innerHTML = data.username;
+    div.append(img);
+    div.append(player);
+    document.querySelector('#avatar-container').append(div);
+})
 
 var round = [];
 var round_index = 0;
@@ -34,20 +39,40 @@ results.setAttribute("id", "results");
 function successCB(data) {
     data = JSON.parse(data);
     for (var i = 0; i < data.results.length; i++) {
-        if (data.results[i].media_type === "movie" && data.results[i].genre_ids.length && !data.results[i].genre_ids.some(r => genres.includes(r))) {
+        let d = {}
+        if (data.results[i].media_type === "movie" && data.results[i].genre_ids.length && !data.results[i].genre_ids.some(r => genres.includes(r)) && !data.results[i].video) {
+            var title = data.results[i].title;
+            var id = data.results[i].id;
+            var year = new Date(data.results[i].release_date).getFullYear();
+            var popularity = data.results[i].popularity;
+            d.title = title;
+            d.id = id;
+            d.year = year;
+            d.popularity = popularity;
+            search.push(d);
+
             var li = document.createElement('li');
-            var a = document.createElement('a')
-            a.innerHTML = data.results[i].title + " (movie)";
-            a.setAttribute('value', data.results[i].id);
+            var a = document.createElement('a');
+            values = {'title': title, 'id': id, 'year': year, 'popularity': popularity};
+            a.innerHTML = `${data.results[i].title} (${year})`;
+            a.setAttribute('value', id);
             a.setAttribute('href', "#");
             a.setAttribute('onClick', 'selectResult(this)');
             li.appendChild(a);
             results.appendChild(li);
         } else if (data.results[i].media_type === "person" && data.results[i].known_for_department === "Acting") {
+            var actor = data.results[i].name;
+            var id = data.results[i].id;
+            var popularity = data.results[i].popularity;
+            d.actor = actor;
+            d.id = id;
+            d.popularity = popularity;
+            search.push(d);
+
             var li = document.createElement('li');
             var a = document.createElement('a')
-            a.innerHTML = data.results[i].name + " (actor)";
-            a.setAttribute('value', data.results[i].id);
+            a.innerHTML = actor;
+            a.setAttribute('value', id);
             a.setAttribute('href', "#");
             a.setAttribute('onClick', 'selectResult(this)');
             li.appendChild(a);
@@ -61,6 +86,7 @@ function errorCB(data) {
     console.log("Error callback: " + data);
 };
 
+var search = []
 function getQuery() {
     results.innerHTML = '';
     var q = document.getElementById("search").value;
@@ -119,7 +145,8 @@ function getStarring(data) {
 
 function selectResult(item) {
     var id = item.getAttribute('value');
-    round.push(item.innerHTML.split(' ').slice(0, -1).join(' '));
+    socket.emit('first_search', JSON.stringify(search[search.findIndex(x => x.id == id)]));
+    round.push(item.innerHTML);
     results.innerHTML = '';
     var li = document.createElement("li");
     li.innerHTML = round[round_index];

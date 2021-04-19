@@ -2,10 +2,13 @@ from flask import render_template, redirect, url_for, flash
 from flask_login import LoginManager, login_user, current_user, login_required, logout_user
 from wtform_fields import *
 from models import *
+from game import *
 from app.email import send_password_reset_email
 from flask_socketio import SocketIO, send, emit, join_room, leave_room
 from app import app
 
+
+game = Game()
 socketio = SocketIO(app)
 login = LoginManager(app)
 login.init_app(app)
@@ -102,7 +105,14 @@ def on_join(data):
     username = data['username']
     room = data['room']
     join_room(room)
-    emit('joined', {'msg': username + " has joined the " + room}, room=room)
+    emit('joined', {'username': username, 'room': room}, room=room)
 
 
-socketio.run(app, debug=True)
+@socketio.on('first_search')
+def on_search(data):
+    game.search = data
+    print(game.search)
+
+
+if __name__ == '__main__':
+    socketio.run(app, debug=True)

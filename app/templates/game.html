@@ -20,6 +20,7 @@
         <div id="avatar-container"></div>
         <script type="text/javascript">
             const username = `{{ username }}`;
+            const avatar = "{{ url_for('static', filename='avatar.png') }}";
         </script>
         <script src="{{ url_for('static', filename='game.js') }}"></script>
     </body>
