@@ -43,10 +43,12 @@ function successCB(data) {
         if (data.results[i].media_type === "movie" && data.results[i].genre_ids.length && !data.results[i].genre_ids.some(r => genres.includes(r)) && !data.results[i].video) {
             var title = data.results[i].title;
             var id = data.results[i].id;
+            var media_type = data.results[i].media_type;
             var year = new Date(data.results[i].release_date).getFullYear();
             var popularity = data.results[i].popularity;
             d.title = title;
             d.id = id;
+            d.media_type = media_type;
             d.year = year;
             d.popularity = popularity;
             search.push(d);
@@ -63,9 +65,11 @@ function successCB(data) {
         } else if (data.results[i].media_type === "person" && data.results[i].known_for_department === "Acting") {
             var actor = data.results[i].name;
             var id = data.results[i].id;
+            var media_type = data.results[i].media_type;
             var popularity = data.results[i].popularity;
             d.actor = actor;
             d.id = id;
+            d.media_type = media_type;
             d.popularity = popularity;
             search.push(d);
 
@@ -145,7 +149,7 @@ function getStarring(data) {
 
 function selectResult(item) {
     var id = item.getAttribute('value');
-    socket.emit('first_search', JSON.stringify(search[search.findIndex(x => x.id == id)]));
+    socket.emit('search', JSON.stringify(search[search.findIndex(x => x.id == id)]));
     round.push(item.innerHTML);
     results.innerHTML = '';
     var li = document.createElement("li");
