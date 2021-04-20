@@ -113,6 +113,7 @@ def on_join(data):
 @socketio.on('search')
 def on_search(data):
     game.add_to_round(data)
+    game.add_collection(data)
     print(f"\n\n{game.round}\n\n")
 
 

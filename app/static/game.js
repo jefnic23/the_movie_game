@@ -148,7 +148,8 @@ function getStarring(data) {
 
 function selectResult(item) {
     var id = item.getAttribute('value');
-    socket.emit('search', JSON.stringify(search[search.findIndex(x => x.id == id)]));
+    socket.emit('search', search[search.findIndex(x => x.id == id)]);
+    search = [];
     round.push(item.innerHTML);
     results.innerHTML = '';
     var li = document.createElement("li");

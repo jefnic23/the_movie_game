@@ -1,8 +1,14 @@
+import tmdbsimple as tmdb
+from app import app
+
 class Game:
+    tmdb.API_KEY = app.config['API_KEY']
+    
     def __init__(self):
         self.players = []
         self.round = []
         self.round_index = 0
+        self.collection = []
 
     def reset_game(self):
         self.players = []
@@ -21,3 +27,19 @@ class Game:
         self.round.append(search)
         if len(self.round) > 1:
             self.round_index += 1
+
+    def add_collection(self, search):
+        if search['media_type'] == 'movie':
+            movie = tmdb.Movies(search['id'])
+            response = movie.info()
+            if response['belongs_to_collection'] and response['belongs_to_collection'] not in self.collection:
+                self.collection.append(response['belongs_to_collection']['id'])
+
+    def check_answer(self, guess):
+        if len(self.round) > 0:
+            test = self.round[self.round_index - 1]
+            if guess['media_type'] == 'movie':
+                movie = tmdb.Movies(guess['id'])
+                cast = [c['id'] for c in movie.credits()['cast'] if c['known_for_department'] == "Acting"]
+                if test['id'] in cast:
+                    
