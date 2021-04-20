@@ -55,7 +55,6 @@ function successCB(data) {
 
             var li = document.createElement('li');
             var a = document.createElement('a');
-            values = {'title': title, 'id': id, 'year': year, 'popularity': popularity};
             a.innerHTML = `${data.results[i].title} (${year})`;
             a.setAttribute('value', id);
             a.setAttribute('href', "#");

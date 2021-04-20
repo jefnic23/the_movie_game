@@ -1,14 +1,14 @@
-from flask import render_template, redirect, url_for, flash
+from flask import render_template, redirect, url_for, flash, request
 from flask_login import LoginManager, login_user, current_user, login_required, logout_user
 from wtform_fields import *
 from models import *
-from moviegame import *
+from game import *
 from app.email import send_password_reset_email
 from flask_socketio import SocketIO, send, emit, join_room, leave_room
 from app import app
 
 
-moviegame = MovieGame()
+game = Game()
 socketio = SocketIO(app)
 login = LoginManager(app)
 login.init_app(app)
@@ -47,7 +47,7 @@ def login():
         user_object = User.query.filter_by(username=login_form.username.data).first()
         login_user(user_object, remember=login_form.remember_me.data)
         if current_user.is_authenticated:
-            return redirect(url_for('game'))
+            return redirect(url_for('room'))
     return render_template("login.html", form=login_form)
 
 
@@ -92,8 +92,8 @@ def reset_password(token):
     return render_template('reset_password.html', form=form)
 
 
-@app.route('/game', methods=['GET', 'POST'])
-def game():
+@app.route('/room', methods=['GET', 'POST'])
+def room():
     if not current_user.is_authenticated:
         flash("Please login.", "danger")
         return redirect(url_for('login'))
@@ -104,16 +104,16 @@ def game():
 def on_join(data):
     username = data['username']
     room = data['room']
-    moviegame.add_player(username)
-    print(f"\n\n{moviegame.players}\n\n")
+    game.add_player(username)
+    print(f"\n\n{game.players}\n\n")
     join_room(room)
     emit('joined', {'username': username, 'room': room}, room=room)
 
 
 @socketio.on('search')
 def on_search(data):
-    moviegame.add_to_round(data)
-    print(f"\n\n{moviegame.round}\n\n")
+    game.add_to_round(data)
+    print(f"\n\n{game.round}\n\n")
 
 
 if __name__ == '__main__':
