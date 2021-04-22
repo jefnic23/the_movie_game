@@ -42,4 +42,9 @@ class Game:
                 movie = tmdb.Movies(guess['id'])
                 cast = [c['id'] for c in movie.credits()['cast'] if c['known_for_department'] == "Acting"]
                 if test['id'] in cast:
-                    
+                    self.round.append(guess)
+            elif guess['media_type'] == 'person':
+                actor = tmdb.People(guess['id'])
+                credits = [c['id'] for c in actor.movie_credits()['cast']]
+                if test['id'] in credits:
+                    self.round.append(guess)
