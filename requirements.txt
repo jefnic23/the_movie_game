@@ -4,16 +4,16 @@ certifi==2020.12.5
 cffi==1.14.5
 chardet==4.0.0
 click==7.1.2
-dnspython==2.1.0
+cryptography==3.4.7
+dnspython==1.16.0
 email-validator==1.1.2
+eventlet==0.30.2
 Flask==1.1.2
 Flask-Login==0.5.0
 Flask-Mail==0.9.1
 Flask-SocketIO==5.0.1
 Flask-SQLAlchemy==2.5.1
 Flask-WTF==0.14.3
-gevent==21.1.2
-gevent-websocket==0.10.1
 greenlet==1.0.0
 gunicorn==20.1.0
 idna==2.10
@@ -29,6 +29,7 @@ python-dotenv==0.15.0
 python-engineio==4.0.1
 python-socketio==5.1.0
 requests==2.25.1
+six==1.15.0
 SQLAlchemy==1.4.7
 tmdbsimple==2.8.0
 typing-extensions==3.7.4.3
