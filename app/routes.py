@@ -105,16 +105,17 @@ def on_join(data):
     username = data['username']
     room = data['room']
     game.add_player(username)
-    print(f"\n\n{game.players}\n\n")
+    # print(f"\n\n{game.players}\n\n")
     join_room(room)
     emit('joined', {'username': username, 'room': room}, room=room)
 
 
 @socketio.on('search')
 def on_search(data):
-    game.add_to_round(data)
-    game.add_collection(data)
-    print(f"\n\n{game.round}\n\n")
+    game.add_to_round(data['answer'])
+    game.add_collection(data['answer'])
+    # print(f"\n\n{game.round}\n\n")
+    emit("searched", {"answer": data['answer']}, room=data['room'])
 
 
 if __name__ == '__main__':

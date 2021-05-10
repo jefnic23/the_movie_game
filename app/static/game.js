@@ -5,7 +5,7 @@ function joinRoom(room) {
 }
 
 let room = 'Lounge';
-joinRoom(room);
+joinRoom('Lounge');
 
 socket.on('joined', data => {
     var div = document.createElement('div');
@@ -148,7 +148,8 @@ function getStarring(data) {
 
 function selectResult(item) {
     var id = item.getAttribute('value');
-    socket.emit('search', search[search.findIndex(x => x.id == id)]);
+    socket.emit('search', {'answer': search[search.findIndex(x => x.id == id)], 'room': room});
+    /*
     search = [];
     round.push(item.innerHTML);
     results.innerHTML = '';
@@ -156,6 +157,7 @@ function selectResult(item) {
     li.innerHTML = round[round_index];
     game.appendChild(li);
     game_container.appendChild(game);
+    */
     if (round_index > 0) {
         if (item.innerHTML.split(' ').pop() === "(actor)") {
         theMovieDb.people.getMovieCredits({"id": id}, getStarring, errorCB);
@@ -165,3 +167,10 @@ function selectResult(item) {
     }
     round_index++;
 };
+
+socket.on('searched', data => {
+    var li = document.createElement("li");
+    li.innerHTML = data.answer;
+    game.appendChild(li);
+    game_container.appendChild(game);
+})
