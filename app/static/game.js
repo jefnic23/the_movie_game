@@ -41,12 +41,12 @@ function successCB(data) {
     for (var i = 0; i < data.results.length; i++) {
         let d = {}
         if (data.results[i].media_type === "movie" && data.results[i].genre_ids.length && !data.results[i].genre_ids.some(r => genres.includes(r)) && !data.results[i].video) {
-            var title = data.results[i].title;
+            var name = data.results[i].title;
             var id = data.results[i].id;
             var media_type = data.results[i].media_type;
             var year = new Date(data.results[i].release_date).getFullYear();
             var popularity = data.results[i].popularity;
-            d.title = title;
+            d.name = name;
             d.id = id;
             d.media_type = media_type;
             d.year = year;
@@ -62,11 +62,11 @@ function successCB(data) {
             li.appendChild(a);
             results.appendChild(li);
         } else if (data.results[i].media_type === "person" && data.results[i].known_for_department === "Acting") {
-            var actor = data.results[i].name;
+            var name = data.results[i].name;
             var id = data.results[i].id;
             var media_type = data.results[i].media_type;
             var popularity = data.results[i].popularity;
-            d.actor = actor;
+            d.name = name;
             d.id = id;
             d.media_type = media_type;
             d.popularity = popularity;
@@ -74,7 +74,7 @@ function successCB(data) {
 
             var li = document.createElement('li');
             var a = document.createElement('a')
-            a.innerHTML = actor;
+            a.innerHTML = name;
             a.setAttribute('value', id);
             a.setAttribute('href', "#");
             a.setAttribute('onClick', 'selectResult(this)');
@@ -148,7 +148,7 @@ function getStarring(data) {
 
 function selectResult(item) {
     var id = item.getAttribute('value');
-    socket.emit('search', {'answer': search[search.findIndex(x => x.id == id)], 'room': room});
+    socket.emit('search', {'answer': search[search.findIndex(x => x.id === id)], 'room': room});
     /*
     search = [];
     round.push(item.innerHTML);
@@ -170,7 +170,7 @@ function selectResult(item) {
 
 socket.on('searched', data => {
     var li = document.createElement("li");
-    li.innerHTML = data.answer;
+    li.innerHTML = data.answer.name;
     game.appendChild(li);
     game_container.appendChild(game);
-})
+});

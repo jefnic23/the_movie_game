@@ -112,9 +112,11 @@ def on_join(data):
 
 @socketio.on('search')
 def on_search(data):
-    game.add_to_round(data['answer'])
-    game.add_collection(data['answer'])
-    # print(f"\n\n{game.round}\n\n")
+    if game['round_index'] == 0:
+        game.add_to_round(data['answer'])
+        game.add_collection(data['answer'])
+    else:
+        game.check_answer(data['answer'])
     emit("searched", {"answer": data['answer']}, room=data['room'])
 
 
