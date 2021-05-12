@@ -9,15 +9,19 @@ class Game:
         self.round = []
         self.round_index = 0
         self.collection = []
+        self.round_over = False
 
     def reset_game(self):
         self.players = []
         self.round = []
         self.round_index = 0
+        self.collection = []
+        self.round_over = False
 
     def new_round(self):
         self.round = []
         self.round_index = 0
+        self.round_over = False
 
     def add_player(self, player):
         if player not in self.players:
@@ -43,11 +47,11 @@ class Game:
             if test['id'] in cast:
                 self.add_to_round(guess)
             else:
-                self.new_round()
+                self.round_over = True
         elif guess['media_type'] == 'person':
             actor = tmdb.People(guess['id'])
             credits = [c['id'] for c in actor.movie_credits()['cast']]
             if test['id'] in credits:
                 self.add_to_round(guess)
             else:
-                self.new_round()
+                self.round_over = True

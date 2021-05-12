@@ -148,29 +148,21 @@ function getStarring(data) {
 
 function selectResult(item) {
     var id = item.getAttribute('value');
-    socket.emit('search', {'answer': search[search.findIndex(x => x.id === id)], 'room': room});
-    /*
-    search = [];
-    round.push(item.innerHTML);
-    results.innerHTML = '';
-    var li = document.createElement("li");
-    li.innerHTML = round[round_index];
-    game.appendChild(li);
-    game_container.appendChild(game);
-    */
-    if (round_index > 0) {
-        if (item.innerHTML.split(' ').pop() === "(actor)") {
-        theMovieDb.people.getMovieCredits({"id": id}, getStarring, errorCB);
-        } else {
-        theMovieDb.movies.getCredits({"id": id}, getMovie, errorCB);
-        }
-    }
-    round_index++;
+    socket.emit('search', {'guess': search[search.findIndex(x => x.id == id)], 'room': room});
 };
 
-socket.on('searched', data => {
-    var li = document.createElement("li");
-    li.innerHTML = data.answer.name;
-    game.appendChild(li);
-    game_container.appendChild(game);
+socket.on('answer', data => {
+    // console.log(data);
+    if (data.round_over) {
+        alert('sorry');
+        game.innerHTML = '';
+        results.innerHTML = '';
+        socket.emit('restart')
+    } else {
+        alert('correct!');
+        var li = document.createElement("li");
+        li.innerHTML = data.answer.name;
+        game.appendChild(li);
+        game_container.appendChild(game);
+    }
 });

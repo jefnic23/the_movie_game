@@ -7,22 +7,18 @@ from app.email import send_password_reset_email
 from flask_socketio import SocketIO, send, emit, join_room, leave_room
 from app import app
 
-
 game = Game()
 socketio = SocketIO(app)
 login = LoginManager(app)
 login.init_app(app)
 
-
 @login.user_loader
 def load_user(id):
     return User.query.get(int(id))
 
-
 @app.route('/')
 def index():
     return render_template("index.html")
-
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
@@ -39,7 +35,6 @@ def register():
         return redirect(url_for('login'))
     return render_template("register.html", form=reg_form)
 
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     login_form = LoginForm()
@@ -50,7 +45,6 @@ def login():
             return redirect(url_for('room'))
     return render_template("login.html", form=login_form)
 
-
 @app.route('/logout', methods=['GET'])
 def logout():
     if current_user.is_anonymous:
@@ -58,7 +52,6 @@ def logout():
     logout_user()
     flash("You have logged out successfully", "success")
     return redirect(url_for("login"))
-
 
 @app.route("/reset_password_request", methods=['GET', 'POST'])
 def reset_password_request():
@@ -91,7 +84,6 @@ def reset_password(token):
         return redirect(url_for('login'))
     return render_template('reset_password.html', form=form)
 
-
 @app.route('/room', methods=['GET', 'POST'])
 def room():
     if not current_user.is_authenticated:
@@ -99,6 +91,7 @@ def room():
         return redirect(url_for('login'))
     return render_template('game.html', username=current_user.username)
 
+# sockets
 
 @socketio.on('join')
 def on_join(data):
@@ -109,15 +102,19 @@ def on_join(data):
     join_room(room)
     emit('joined', {'username': username, 'room': room}, room=room)
 
-
 @socketio.on('search')
 def on_search(data):
-    if game['round_index'] == 0:
-        game.add_to_round(data['answer'])
+    guess = data['guess']
+    room = data['room']
+    if game.round_index == 0:
+        game.add_to_round(guess)
     else:
-        game.check_answer(data['answer'])
-    emit("searched", {"answer": data['answer']}, room=data['room'])
+        game.check_answer(guess)
+    emit("answer", {"answer": guess, "round_over": game.round_over}, room=room)
 
+@socketio.on('restart')
+def on_restart():
+    game.new_round()
 
 if __name__ == '__main__':
     socketio.run(app, debug=True)
