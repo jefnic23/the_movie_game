@@ -114,7 +114,6 @@ def on_join(data):
 def on_search(data):
     if game['round_index'] == 0:
         game.add_to_round(data['answer'])
-        game.add_collection(data['answer'])
     else:
         game.check_answer(data['answer'])
     emit("searched", {"answer": data['answer']}, room=data['room'])
