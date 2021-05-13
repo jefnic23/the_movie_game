@@ -1,3 +1,4 @@
+from itertools import cycle
 import tmdbsimple as tmdb
 from app import app
 
@@ -10,6 +11,8 @@ class Game:
         self.round_index = 0
         self.collection = []
         self.round_over = False
+        self.lineup = cycle(self.players)
+        self.current_player = ''
 
     def reset_game(self):
         self.players = []
@@ -22,6 +25,7 @@ class Game:
         self.round = []
         self.round_index = 0
         self.round_over = False
+        self.current_player = next(self.lineup)
 
     def add_player(self, player):
         if player not in self.players:
@@ -31,6 +35,7 @@ class Game:
         self.add_collection(search)
         self.round.append(search)
         self.round_index += 1
+        self.current_player = next(self.lineup)
 
     def add_collection(self, search):
         if search['media_type'] == 'movie':

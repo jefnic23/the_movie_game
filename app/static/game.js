@@ -21,10 +21,6 @@ socket.on('joined', data => {
     document.querySelector('#avatar-container').append(div);
 })
 
-var round = [];
-var round_index = 0;
-var start = '';
-
 var form = document.getElementById("search_form");
 function handleForm(event) {
     event.preventDefault();
@@ -100,69 +96,25 @@ var game_container = document.getElementById("game-container");
 var game = document.createElement("ul");
 game.setAttribute("id", "game");
 
-function checkCast(cast, actor) {
-    if (cast.includes(actor)) {
-        return true;
-    } else {
-        return false;
-    }
-};
-
-function checkFilms(films, actor) {
-    if (films.includes(actor)) {
-        return true;
-    } else {
-        return false;
-    }
-};
-
-function getMovie(data) {
-    data = JSON.parse(data);
-    cast = [];
-    for (var i = 0; i < data.cast.length; i++) {
-        cast.push(data.cast[i].name);
-    } 
-    if (checkCast(cast, round[round_index-2])) {
-        alert('correct!');
-    } else {
-        alert('sorry');
-        round_index = 0;
-        game.innerHTML = '';
-    }
-};
-
-function getStarring(data) {
-    data = JSON.parse(data);
-    films = [];
-    for (var i = 0; i < data.cast.length; i++) {
-        films.push(data.cast[i].title);
-    }
-    if (checkFilms(films, round[round_index-2])) {
-        alert('correct!');
-    } else {
-        alert('sorry');
-        round_index = 0;
-        game.innerHTML = '';
-    }
-};
-
 function selectResult(item) {
     var id = item.getAttribute('value');
     socket.emit('search', {'guess': search[search.findIndex(x => x.id == id)], 'room': room});
 };
 
 socket.on('answer', data => {
-    // console.log(data);
+    // console.log(data.current_player);
     if (data.round_over) {
-        alert('sorry');
         game.innerHTML = '';
         results.innerHTML = '';
+        alert('sorry');
         socket.emit('restart')
     } else {
-        alert('correct!');
         var li = document.createElement("li");
         li.innerHTML = data.answer.name;
         game.appendChild(li);
         game_container.appendChild(game);
+        if (data.round_index - 1 !== 0) {
+            alert('correct!');
+        }
     }
 });
