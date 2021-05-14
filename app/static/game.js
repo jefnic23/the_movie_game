@@ -11,7 +11,6 @@ socket.on('joined', data => {
     var div = document.createElement('div');
     var img = document.createElement('img');
     var player = document.createElement('h2');
-
     div.setAttribute("class", "card");
     img.setAttribute("src", avatar);
     img.setAttribute("class", "card-icon");
@@ -19,7 +18,11 @@ socket.on('joined', data => {
     div.append(img);
     div.append(player);
     document.querySelector('#avatar-container').append(div);
-})
+    if (data.players.length === 2 && data.current_player === username) {
+        document.getElementById("searchbar").disabled = false;
+        document.getElementById("searchbtn").disabled = false;
+    }
+});
 
 var form = document.getElementById("search_form");
 function handleForm(event) {
@@ -79,18 +82,18 @@ function successCB(data) {
         }
     }
     results_container.appendChild(results)
-};
+}
         
 function errorCB(data) {
     console.log("Error callback: " + data);
-};
+}
 
 var search = []
 function getQuery() {
     results.innerHTML = '';
-    var q = document.getElementById("search").value;
+    var q = document.getElementById("searchbar").value;
     theMovieDb.search.getMulti({'query': q}, successCB, errorCB);
-};
+}
 
 var game_container = document.getElementById("game-container");
 var game = document.createElement("ul");
@@ -99,16 +102,29 @@ game.setAttribute("id", "game");
 function selectResult(item) {
     var id = item.getAttribute('value');
     socket.emit('search', {'guess': search[search.findIndex(x => x.id == id)], 'room': room});
-};
+}
+
+function enableSearch(current, username) {
+    if (current === username) {
+        document.getElementById("searchbar").disabled = false;
+        document.getElementById("searchbtn").disabled = false;
+    } else {
+        document.getElementById("searchbar").disabled = true;
+        document.getElementById("searchbtn").disabled = true;
+    }
+}
 
 socket.on('answer', data => {
     // console.log(data.current_player);
     if (data.round_over) {
+        enableSearch(data.current_player, username);  
         game.innerHTML = '';
         results.innerHTML = '';
         alert('sorry');
-        socket.emit('restart')
+        socket.emit('restart');
     } else {
+        enableSearch(data.current_player, username);
+        results.innerHTML = '';
         var li = document.createElement("li");
         li.innerHTML = data.answer.name;
         game.appendChild(li);

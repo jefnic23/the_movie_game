@@ -98,8 +98,11 @@ def on_join(data):
     username = data['username']
     room = data['room']
     game.add_player(username)
+    # print(f"\n\n{game.players[0].username}\n\n")
+    if len(game.players) == 1:
+        game.current_player = username
     join_room(room)
-    emit('joined', {'username': username, 'room': room}, room=room)
+    emit('joined', {'username': username, "players": game.players, "current_player": game.current_player, 'room': room}, room=room)
 
 @socketio.on('search')
 def on_search(data):

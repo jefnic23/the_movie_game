@@ -12,8 +12,8 @@
     <body>
         <img src="{{ url_for('static', filename='logo.png') }}" class="logo"/>
         <form id="search_form">
-            <input type="text" id="search" placeholder="search for an actor or movie...">
-            <input type="submit" onClick="getQuery()">
+            <input type="text" id="searchbar" placeholder="search for an actor or movie..." disabled>
+            <input type="submit" id="searchbtn" onClick="getQuery()" disabled>
         </form>
         <div id="results-container"></div>
         <div id='game-container'></div>
