@@ -101,7 +101,7 @@ game.setAttribute("id", "game");
 
 function selectResult(item) {
     var id = item.getAttribute('value');
-    socket.emit('search', {'guess': search[search.findIndex(x => x.id == id)], 'room': room});
+    socket.emit('search', {'guess': search[search.findIndex(x => x.id == id)], 'username': username, 'room': room});
 }
 
 function enableSearch(current, username) {
@@ -120,7 +120,7 @@ socket.on('answer', data => {
         enableSearch(data.current_player, username);  
         game.innerHTML = '';
         results.innerHTML = '';
-        alert('sorry');
+        alert(`sorry, ${data.current_player} rollcall: ${data.score}`);
         socket.emit('restart');
     } else {
         enableSearch(data.current_player, username);

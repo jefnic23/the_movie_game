@@ -98,7 +98,6 @@ def on_join(data):
     username = data['username']
     room = data['room']
     game.add_player(username)
-    # print(f"\n\n{game.players[0].username}\n\n")
     if len(game.players) == 1:
         game.current_player = username
     join_room(room)
@@ -106,13 +105,14 @@ def on_join(data):
 
 @socketio.on('search')
 def on_search(data):
+    player = data['username']
     guess = data['guess']
     room = data['room']
     if game.round_index == 0:
         game.add_to_round(guess)
     else:
-        game.check_answer(guess)
-    emit("answer", {"answer": guess, "round_over": game.round_over, "round_index": game.round_index, "current_player": game.current_player}, room=room)
+        game.check_answer(guess, player)
+    emit("answer", {"answer": guess, "round_over": game.round_over, "round_index": game.round_index, "current_player": game.current_player, "score": game.scores[player].rollcall}, room=room)
 
 @socketio.on('restart')
 def on_restart():

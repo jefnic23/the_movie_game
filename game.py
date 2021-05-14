@@ -7,6 +7,7 @@ class Game:
     tmdb.API_KEY = app.config['API_KEY']
     
     def __init__(self):
+        self.scores = {}
         self.players = []
         self.round = []
         self.round_index = 0
@@ -16,7 +17,6 @@ class Game:
         self.current_player = ''
 
     def reset_game(self):
-        self.players = []
         self.round = []
         self.round_index = 0
         self.collection = []
@@ -31,6 +31,9 @@ class Game:
     def add_player(self, player):
         if player not in self.players:
             self.players.append(player)
+            self.scores[player] = Player(player)
+        if len(self.players) == 1:
+            self.current_player = next(self.lineup)
 
     def add_to_round(self, search):
         self.add_collection(search)
@@ -45,7 +48,7 @@ class Game:
             if response['belongs_to_collection'] and response['belongs_to_collection'] not in self.collection:
                 self.collection.append(response['belongs_to_collection']['id'])
 
-    def check_answer(self, guess):
+    def check_answer(self, guess, player):
         test = self.round[self.round_index - 1]
         if guess['media_type'] == 'movie':
             movie = tmdb.Movies(guess['id'])
@@ -53,6 +56,8 @@ class Game:
             if test['id'] in cast:
                 self.add_to_round(guess)
             else:
+                self.scores[player].take_letter()
+                self.current_player = next(self.lineup)
                 self.round_over = True
         elif guess['media_type'] == 'person':
             actor = tmdb.People(guess['id'])
@@ -60,4 +65,6 @@ class Game:
             if test['id'] in credits:
                 self.add_to_round(guess)
             else:
+                self.scores[player].take_letter()
+                self.current_player = next(self.lineup)
                 self.round_over = True
