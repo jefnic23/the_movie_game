@@ -14,6 +14,8 @@
         <form id="search_form">
             <input type="text" id="searchbar" placeholder="search for an actor or movie..." disabled>
             <input type="submit" id="searchbtn" onClick="getQuery()" disabled>
+            <button type='submit' id="vetobtn" onClick="veto()" hidden disabled>Veto</button>
+            <button type='submit' id="challengebtn" onClick="challenge()" hidden disabled>Challenge</button>
         </form>
         <div id="results-container"></div>
         <div id='game-container'></div>

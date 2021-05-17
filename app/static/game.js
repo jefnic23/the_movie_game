@@ -108,19 +108,48 @@ function enableSearch(current, username) {
     if (current === username) {
         document.getElementById("searchbar").disabled = false;
         document.getElementById("searchbtn").disabled = false;
+        document.getElementById('vetobtn').disabled = false;
     } else {
         document.getElementById("searchbar").disabled = true;
         document.getElementById("searchbtn").disabled = true;
+        document.getElementById('vetobtn').disabled = true;
     }
 }
 
+function veto() {
+    socket.emit("veto", {'room': room});
+}
+
+function challenge() {
+    socket.emit("challenge", {'room': room});
+}
+
+socket.on("vetoed", data => {
+    game.innerHTML = '';
+    results.innerHTML = '';
+    enableSearch(data.current_player, username);
+});
+
+socket.on("challenged", data => {
+    enableSearch(data.current_player, username);
+});
+
+// fix button disabling based on player
 socket.on('answer', data => {
     // console.log(`current player: ${data.current_player}`);
+    if (data.round_index === 1) {
+        document.getElementById('vetobtn').hidden = false;
+        document.getElementById('vetobtn').disabled = false;
+    } else {
+        document.getElementById('vetobtn').hidden = true;
+        document.getElementById('vetobtn').disabled = true;
+    }
+
     if (data.round_over) {
         enableSearch(data.current_player, username);  
         game.innerHTML = '';
         results.innerHTML = '';
-        alert(`sorry, ${data.username} rollcall: ${data.score}`);
+        alert(`sorry, ${data.player} rollcall: ${data.score}`);
         socket.emit('restart');
     } else {
         enableSearch(data.current_player, username);

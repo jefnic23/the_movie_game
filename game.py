@@ -29,19 +29,17 @@ class Game:
         self.current_player = next(self.lineup)
 
     def add_player(self, player):
-        print(f"\n\n{self.current_player}\n\n")
         if player not in self.players:
             self.players.append(player)
             self.scores[player] = Player(player)
-        if len(self.players) == 1:
-            self.current_player = next(self.lineup)
+            if len(self.players) == 1:
+                self.current_player = next(self.lineup)
 
     def add_to_round(self, search):
         self.add_collection(search)
         self.round.append(search)
         self.round_index += 1
         self.current_player = next(self.lineup)
-        print(f"\n\n{self.current_player}\n\n")
 
     def add_collection(self, search):
         if search['media_type'] == 'movie':
@@ -70,3 +68,9 @@ class Game:
                 self.scores[player].take_letter()
                 self.current_player = next(self.lineup)
                 self.round_over = True
+
+    def veto_challenge(self, veto=False):
+        for i in range(len(self.players) - 1):
+            self.current_player = next(self.lineup)
+        if veto:
+            self.reset_game()

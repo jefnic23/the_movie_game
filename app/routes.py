@@ -106,12 +106,21 @@ def on_search(data):
     player = data['username']
     guess = data['guess']
     room = data['room']
-    print(f"\ncurrent guesser: {player}\n")
     if game.round_index == 0:
         game.add_to_round(guess)
     else:
         game.check_answer(guess, player)
-    emit("answer", {"answer": guess, "round_over": game.round_over, "round_index": game.round_index, "current_player": game.current_player, "score": game.scores[player].rollcall}, room=room)
+    emit("answer", {"answer": guess, "round_over": game.round_over, "round_index": game.round_index, "current_player": game.current_player, "player": player, "score": game.scores[player].rollcall}, room=room)
+
+@socketio.on("veto")
+def on_veto(data):
+    game.veto_challenge(veto=True)
+    emit("vetoed", {"current_player": game.current_player}, room=data['room'])
+
+@socketio.on("challenge")
+def on_veto(data):
+    game.veto_challenge()
+    emit("challenged", {"current_player": game.current_player}, room=data['room'])
 
 @socketio.on('restart')
 def on_restart():
