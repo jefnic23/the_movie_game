@@ -1,4 +1,4 @@
-from cycle import cycle
+from itertools import cycle
 from app import app
 
 class Player:

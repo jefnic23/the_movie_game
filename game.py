@@ -1,6 +1,6 @@
 import tmdbsimple as tmdb
 from player import Player
-from cycle import cycle
+from itertools import cycle
 from app import app
 
 class Game:
@@ -29,6 +29,7 @@ class Game:
         self.current_player = next(self.lineup)
 
     def add_player(self, player):
+        print(f"\n\n{self.current_player}\n\n")
         if player not in self.players:
             self.players.append(player)
             self.scores[player] = Player(player)
@@ -40,6 +41,7 @@ class Game:
         self.round.append(search)
         self.round_index += 1
         self.current_player = next(self.lineup)
+        print(f"\n\n{self.current_player}\n\n")
 
     def add_collection(self, search):
         if search['media_type'] == 'movie':

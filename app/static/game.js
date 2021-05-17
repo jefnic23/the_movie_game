@@ -120,7 +120,7 @@ socket.on('answer', data => {
         enableSearch(data.current_player, username);  
         game.innerHTML = '';
         results.innerHTML = '';
-        alert(`sorry, ${data.current_player} rollcall: ${data.score}`);
+        alert(`sorry, ${data.username} rollcall: ${data.score}`);
         socket.emit('restart');
     } else {
         enableSearch(data.current_player, username);

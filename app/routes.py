@@ -98,8 +98,6 @@ def on_join(data):
     username = data['username']
     room = data['room']
     game.add_player(username)
-    if len(game.players) == 1:
-        game.current_player = username
     join_room(room)
     emit('joined', {'username': username, "players": game.players, "current_player": game.current_player, 'room': room}, room=room)
 
@@ -108,7 +106,7 @@ def on_search(data):
     player = data['username']
     guess = data['guess']
     room = data['room']
-    # print(f"\ncurrent guesser: {player}\n")
+    print(f"\ncurrent guesser: {player}\n")
     if game.round_index == 0:
         game.add_to_round(guess)
     else:
