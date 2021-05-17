@@ -108,6 +108,7 @@ def on_search(data):
     player = data['username']
     guess = data['guess']
     room = data['room']
+    # print(f"\ncurrent guesser: {player}\n")
     if game.round_index == 0:
         game.add_to_round(guess)
     else:

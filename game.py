@@ -1,6 +1,6 @@
-from itertools import cycle
 import tmdbsimple as tmdb
 from player import Player
+from cycle import cycle
 from app import app
 
 class Game:

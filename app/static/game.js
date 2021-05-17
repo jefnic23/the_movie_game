@@ -115,7 +115,7 @@ function enableSearch(current, username) {
 }
 
 socket.on('answer', data => {
-    // console.log(data.current_player);
+    // console.log(`current player: ${data.current_player}`);
     if (data.round_over) {
         enableSearch(data.current_player, username);  
         game.innerHTML = '';
