@@ -11,6 +11,7 @@
     </head>
     <body>
         <img src="{{ url_for('static', filename='logo.png') }}" class="logo"/>
+        <div id="timer"></div>
         <form id="search_form">
             <input type="text" id="searchbar" placeholder="search for an actor or movie..." disabled>
             <input type="submit" id="searchbtn" onClick="getQuery()" disabled>

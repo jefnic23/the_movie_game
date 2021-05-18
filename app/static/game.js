@@ -132,6 +132,27 @@ function challenge() {
     socket.emit("challenge", {'room': room});
 }
 
+const TIME_LIMIT = 15;
+let timePassed = 0;
+let timeLeft = TIME_LIMIT;
+let timerInterval = null; 
+
+function timesUp() {
+    clearInterval(timerInterval);
+    
+}
+
+function timer() {
+    timerInterval = setInterval(() => {
+        timePassed += 1;
+        timeLeft = TIME_LIMIT - timePassed;
+        document.getElementById("timer").innerHTML = timeLeft;
+        if (timeLeft === 0) {
+            timesUp();
+        }
+    }, 1000);
+}
+
 socket.on("vetoed", data => {
     game.innerHTML = '';
     results.innerHTML = '';
