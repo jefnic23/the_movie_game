@@ -108,11 +108,19 @@ function enableSearch(current, username) {
     if (current === username) {
         document.getElementById("searchbar").disabled = false;
         document.getElementById("searchbtn").disabled = false;
-        document.getElementById('vetobtn').disabled = false;
     } else {
         document.getElementById("searchbar").disabled = true;
         document.getElementById("searchbtn").disabled = true;
-        document.getElementById('vetobtn').disabled = true;
+    }
+}
+
+function enableChallenge(current, username, round_index) {
+    if (round_index > 1 && current === username) {
+        document.getElementById('challengebtn').hidden = false;
+        document.getElementById('challengebtn').disabled = false;
+    } else {
+        document.getElementById('challengebtn').hidden = true;
+        document.getElementById('challengebtn').disabled = true;
     }
 }
 
@@ -127,17 +135,20 @@ function challenge() {
 socket.on("vetoed", data => {
     game.innerHTML = '';
     results.innerHTML = '';
+    document.getElementById('vetobtn').hidden = true;
+    document.getElementById('vetobtn').disabled = true;
     enableSearch(data.current_player, username);
 });
 
 socket.on("challenged", data => {
     enableSearch(data.current_player, username);
+    document.getElementById('challengebtn').hidden = true;
+    document.getElementById('challengebtn').disabled = true;
 });
 
-// fix button disabling based on player
 socket.on('answer', data => {
     // console.log(`current player: ${data.current_player}`);
-    if (data.round_index === 1) {
+    if (data.round_index === 1 && data.current_player === username) {
         document.getElementById('vetobtn').hidden = false;
         document.getElementById('vetobtn').disabled = false;
     } else {
@@ -153,6 +164,7 @@ socket.on('answer', data => {
         socket.emit('restart');
     } else {
         enableSearch(data.current_player, username);
+        enableChallenge(data.current_player, username, data.round_index);
         results.innerHTML = '';
         var li = document.createElement("li");
         li.innerHTML = data.answer.name;

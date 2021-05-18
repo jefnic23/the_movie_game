@@ -120,7 +120,7 @@ def on_veto(data):
 @socketio.on("challenge")
 def on_veto(data):
     game.veto_challenge()
-    emit("challenged", {"current_player": game.current_player}, room=data['room'])
+    emit("challenged", {"current_player": game.current_player, "round_index": game.round_index}, room=data['room'])
 
 @socketio.on('restart')
 def on_restart():
