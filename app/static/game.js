@@ -132,7 +132,7 @@ function challenge() {
     socket.emit("challenge", {'room': room});
 }
 
-const TIME_LIMIT = 15;
+const TIME_LIMIT = 20;
 let timePassed = 0;
 let timeLeft = TIME_LIMIT;
 let timerInterval = null; 
@@ -165,6 +165,7 @@ socket.on("challenged", data => {
     enableSearch(data.current_player, username);
     document.getElementById('challengebtn').hidden = true;
     document.getElementById('challengebtn').disabled = true;
+    timer();
 });
 
 socket.on('answer', data => {
@@ -194,5 +195,6 @@ socket.on('answer', data => {
         if (data.round_index - 1 !== 0) {
             alert('correct!');
         }
+        timer();
     }
 });
