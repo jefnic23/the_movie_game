@@ -139,7 +139,9 @@ let timerInterval = null;
 
 function timesUp() {
     clearInterval(timerInterval);
-    
+    timePassed = 0;
+    timeLeft = TIME_LIMIT;
+    document.getElementById("timer").innerHTML = timeLeft;
 }
 
 function timer() {
@@ -154,6 +156,7 @@ function timer() {
 }
 
 socket.on("vetoed", data => {
+    timesUp();
     game.innerHTML = '';
     results.innerHTML = '';
     document.getElementById('vetobtn').hidden = true;
@@ -162,6 +165,7 @@ socket.on("vetoed", data => {
 });
 
 socket.on("challenged", data => {
+    timesUp();
     enableSearch(data.current_player, username);
     document.getElementById('challengebtn').hidden = true;
     document.getElementById('challengebtn').disabled = true;
@@ -170,6 +174,7 @@ socket.on("challenged", data => {
 
 socket.on('answer', data => {
     // console.log(`current player: ${data.current_player}`);
+    timesUp();
     if (data.round_index === 1 && data.current_player === username) {
         document.getElementById('vetobtn').hidden = false;
         document.getElementById('vetobtn').disabled = false;
