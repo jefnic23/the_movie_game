@@ -122,6 +122,13 @@ def on_veto(data):
     game.veto_challenge()
     emit("challenged", {"current_player": game.current_player, "round_index": game.round_index}, room=data['room'])
 
+@socketio.on('noTime')
+def no_time(data):
+    player = data['username']
+    room = data['room']
+    game.times_up(player)
+    emit('times_up', {"player":player, "score": game.scores[player].rollcall, "current_player": game.current_player}, room=room)
+
 @socketio.on('restart')
 def on_restart():
     game.new_round()

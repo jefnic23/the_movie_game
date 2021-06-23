@@ -70,7 +70,12 @@ class Game:
                 self.round_over = True
 
     def veto_challenge(self, veto=False):
-        for i in range(len(self.players) - 1):
-            self.current_player = next(self.lineup)
         if veto:
             self.reset_game()
+        for i in range(len(self.players) - 1):
+            self.current_player = next(self.lineup)
+
+    def times_up(self, player):
+        self.scores[player].take_letter()
+        self.current_player = next(self.lineup)
+        self.round_over = True

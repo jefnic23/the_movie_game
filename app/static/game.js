@@ -137,6 +137,10 @@ let timePassed = 0;
 let timeLeft = TIME_LIMIT;
 let timerInterval = null; 
 
+function noTime() {
+    socket.emit("noTime", {'username': username, 'room': room})
+}
+
 function timesUp() {
     clearInterval(timerInterval);
     timePassed = 0;
@@ -150,6 +154,7 @@ function timer() {
         timeLeft = TIME_LIMIT - timePassed;
         document.getElementById("timer").innerHTML = timeLeft;
         if (timeLeft === 0) {
+            noTime();
             timesUp();
         }
     }, 1000);
@@ -170,6 +175,13 @@ socket.on("challenged", data => {
     document.getElementById('challengebtn').hidden = true;
     document.getElementById('challengebtn').disabled = true;
     timer();
+});
+
+socket.on('times_up', data => {
+    timesUp();
+    game.innerHTML = '';
+    results.innerHTML = '';
+    alert(`times up!, ${data.player} rollcall: ${data.score}`);
 });
 
 socket.on('answer', data => {
