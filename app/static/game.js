@@ -137,8 +137,8 @@ let timePassed = 0;
 let timeLeft = TIME_LIMIT;
 let timerInterval = null; 
 
-function noTime() {
-    socket.emit("noTime", {'username': username, 'room': room})
+function noTime(current_player) {
+    socket.emit("noTime", {'current_player': current_player, 'room': room})
 }
 
 function timesUp() {
@@ -148,13 +148,15 @@ function timesUp() {
     document.getElementById("timer").innerHTML = timeLeft;
 }
 
-function timer() {
+function timer(current_player) {
     timerInterval = setInterval(() => {
         timePassed += 1;
         timeLeft = TIME_LIMIT - timePassed;
         document.getElementById("timer").innerHTML = timeLeft;
         if (timeLeft === 0) {
-            noTime();
+            if (current_player === username) {
+                noTime(current_player);
+            }
             timesUp();
         }
     }, 1000);
@@ -174,14 +176,20 @@ socket.on("challenged", data => {
     enableSearch(data.current_player, username);
     document.getElementById('challengebtn').hidden = true;
     document.getElementById('challengebtn').disabled = true;
-    timer();
+    timer(data.current_player);
 });
 
 socket.on('times_up', data => {
-    timesUp();
+    timesUp();  
     game.innerHTML = '';
     results.innerHTML = '';
-    alert(`times up!, ${data.player} rollcall: ${data.score}`);
+    document.getElementById('vetobtn').hidden = true;
+    document.getElementById('vetobtn').disabled = true;
+    document.getElementById('challengebtn').hidden = true;
+    document.getElementById('challengebtn').disabled = true;
+    alert(`time's up!, ${data.player} rollcall: ${data.score}`);
+    socket.emit('restart');
+    enableSearch(data.current_player, username); 
 });
 
 socket.on('answer', data => {
@@ -212,6 +220,6 @@ socket.on('answer', data => {
         if (data.round_index - 1 !== 0) {
             alert('correct!');
         }
-        timer();
+        timer(data.current_player);
     }
 });
