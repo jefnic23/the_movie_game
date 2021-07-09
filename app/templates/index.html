@@ -1,10 +1,14 @@
 {% extends "layout.html" %}
 
 {% block content %}
+    <img src="{{ url_for('static', filename='logo.png') }}" id="logo"/>
 
     <ul id="links" class="center" style="list-style-type:none;">
         <li><button type="button" onClick="location.href='{{ url_for('login') }}';">Login</button></li>
         <li><button type="button" onClick="location.href='{{ url_for('register') }}';">Register</button></li>
+        <li><button type="button" onClick="location.href='{{ url_for('create') }}';">Create room</button></li>
+        <li><button type="button" onClick="location.href='{{ url_for('join') }}';">Join room</button></li>
+        <li><button type="button" onClick="location.href='{{ url_for('lobby') }}';">Browse rooms</button></li>
     </ul>
 
 {% endblock %}

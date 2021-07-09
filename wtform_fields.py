@@ -57,3 +57,9 @@ class ResetPasswordForm(FlaskForm):
         validators=[InputRequired(message="Password required"), 
         EqualTo("password", message="Passwords must match")])
     submit_button = SubmitField("Submit new password")
+
+class CreateRoomForm(FlaskForm):
+    username = StringField('username_label', validators=[InputRequired(message="Username required")])
+    room_name = StringField('room_label', validators=[InputRequired(message="Room name required")])
+    password = PasswordField('password_label')
+    submit_button = SubmitField('Create room')

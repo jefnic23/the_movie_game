@@ -20,6 +20,19 @@ def load_user(id):
 def index():
     return render_template("index.html")
 
+@app.route('/create', methods=['GET', 'POST'])
+def create():
+    create_form = CreateRoomForm()
+    return render_template('create.html', form=create_form)
+
+@app.route('/join', methods=['GET', 'POST'])
+def join():
+    return render_template('join.html')
+
+@app.route('/lobby', methods=['GET', 'POST'])
+def lobby():
+    return render_template('lobby.html')
+
 @app.route("/register", methods=['GET', 'POST'])
 def register():
     reg_form = RegistrationForm()
@@ -65,7 +78,6 @@ def reset_password_request():
         flash("Check your email for instructions on how to reset your password")
         return redirect(url_for('login'))
     return render_template("reset_password_request.html", form=form)
-
 
 @app.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_password(token):

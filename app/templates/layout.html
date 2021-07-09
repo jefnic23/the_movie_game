@@ -9,7 +9,6 @@
         <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     </head>
     <body>
-        <img src="{{ url_for('static', filename='logo.png') }}" id="logo"/>
         
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}

@@ -27,3 +27,9 @@ class User(UserMixin, db.Model):
         except:
             return
         return User.query.get(id)
+
+class Room(db.Model):
+    __tablename__ = 'rooms'
+    id = db.Column(db.Integer, primary_key=True)
+    roomname = db.Column(db.String(), unique=True, nullable=False)
+    password = db.Column(db.String(), nullable=False)
