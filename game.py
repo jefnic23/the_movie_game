@@ -52,7 +52,7 @@ class Game:
         test = self.round[self.round_index - 1]
         if guess['media_type'] == 'movie':
             movie = tmdb.Movies(guess['id'])
-            cast = [c['id'] for c in movie.credits()['cast'] if c['known_for_department'] == "Acting"]
+            cast = [c['name'] for c in movie.credits()['cast'] if c['known_for_department'] == "Acting"]
             if test['id'] in cast:
                 self.add_to_round(guess)
             else:
@@ -60,9 +60,9 @@ class Game:
                 self.current_player = next(self.lineup)
                 self.round_over = True
         elif guess['media_type'] == 'person':
-            actor = tmdb.People(guess['id'])
-            credits = [c['id'] for c in actor.movie_credits()['cast']]
-            if test['id'] in credits:
+            movie = tmdb.Movies(test['id'])
+            cast = [c['name'] for c in movie.credits()['cast']]
+            if guess['id'] in cast:
                 self.add_to_round(guess)
             else:
                 self.scores[player].take_letter()

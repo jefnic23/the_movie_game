@@ -37,7 +37,7 @@ class RegistrationForm(FlaskForm):
     def validate_email(self, email):
         user_object = User.query.filter_by(email=email.data).first()
         if user_object:
-            raise ValidationError("Account with this email already exists.")
+            raise ValidationError("An account with this email already exists.")
 
 class LoginForm(FlaskForm):
     username = StringField('username_label', validators=[InputRequired(message="Username required")])
@@ -59,7 +59,7 @@ class ResetPasswordForm(FlaskForm):
     submit_button = SubmitField("Submit new password")
 
 class CreateRoomForm(FlaskForm):
-    username = StringField('username_label', validators=[InputRequired(message="Username required")])
+    # username = StringField('username_label', validators=[InputRequired(message="Username required")])
     room_name = StringField('room_label', validators=[InputRequired(message="Room name required")])
     password = PasswordField('password_label')
     submit_button = SubmitField('Create room')

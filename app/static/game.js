@@ -44,12 +44,10 @@ function successCB(data) {
             var id = data.results[i].id;
             var media_type = data.results[i].media_type;
             var year = new Date(data.results[i].release_date).getFullYear();
-            var popularity = data.results[i].popularity;
             d.name = name;
             d.id = id;
             d.media_type = media_type;
             d.year = year;
-            d.popularity = popularity;
             search.push(d);
 
             var li = document.createElement('li');
@@ -60,20 +58,16 @@ function successCB(data) {
             a.setAttribute('onClick', 'selectResult(this)');
             li.appendChild(a);
             results.appendChild(li);
-        } else if (data.results[i].media_type === "person" && data.results[i].known_for_department === "Acting") {
-            var name = data.results[i].name;
-            var id = data.results[i].id;
+        } else if (data.results[i].media_type === "person" && data.results[i].known_for_department === "Acting" && !search.some(x => x.id === data.results[i].name)) {
+            var id = data.results[i].name;
             var media_type = data.results[i].media_type;
-            var popularity = data.results[i].popularity;
-            d.name = name;
             d.id = id;
             d.media_type = media_type;
-            d.popularity = popularity;
             search.push(d);
 
             var li = document.createElement('li');
             var a = document.createElement('a')
-            a.innerHTML = name;
+            a.innerHTML = id;
             a.setAttribute('value', id);
             a.setAttribute('href', "#");
             a.setAttribute('onClick', 'selectResult(this)');
@@ -102,6 +96,7 @@ game.setAttribute("id", "game");
 function selectResult(item) {
     var id = item.getAttribute('value');
     socket.emit('search', {'guess': search[search.findIndex(x => x.id == id)], 'username': username, 'room': room});
+    search = [];
 }
 
 function enableSearch(current, username) {
@@ -214,7 +209,11 @@ socket.on('answer', data => {
         enableChallenge(data.current_player, username, data.round_index);
         results.innerHTML = '';
         var li = document.createElement("li");
-        li.innerHTML = data.answer.name;
+        if (data.answer.media_type === "movie") {
+            li.innerHTML = data.answer.name;
+        } else {
+            li.innerHTML = data.answer.id;
+        }
         game.appendChild(li);
         game_container.appendChild(game);
         if (data.round_index - 1 !== 0) {
