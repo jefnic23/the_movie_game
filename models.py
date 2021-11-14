@@ -28,8 +28,14 @@ class User(UserMixin, db.Model):
             return
         return User.query.get(id)
 
-class Room(db.Model):
-    __tablename__ = 'rooms'
+class GameRoom(db.Model):
+    __tablename__ = 'games'
     id = db.Column(db.Integer, primary_key=True)
     roomname = db.Column(db.String(), unique=True, nullable=False)
     password = db.Column(db.String(), nullable=False)
+
+class Room(db.Model):
+    __tablename__ = 'rooms'
+    id = db.Column(db.Integer, db.ForeignKey('games.id'), primary_key=True)
+    game_id = db.relationship('GameRoom', foreign_keys=id)
+    player = db.Column(db.Integer, unique=True)

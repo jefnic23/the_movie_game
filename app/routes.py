@@ -23,6 +23,13 @@ def index():
 @app.route('/create', methods=['GET', 'POST'])
 def create():
     create_form = CreateRoomForm()
+    if create_form.validate_on_submit():
+        roomname = create_form.roomname.data
+        password = create_form.password.data
+        gameroom = GameRoom(roomname=roomname, password=password)
+        room = Room(player=current_user.id)
+        db.session.add_all([gameroom, room])
+        db.session.commit()
     return render_template('create.html', form=create_form)
 
 @app.route('/join', methods=['GET', 'POST'])
