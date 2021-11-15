@@ -20,22 +20,6 @@ def load_user(id):
 def index():
     return render_template("index.html")
 
-@app.route('/create', methods=['GET', 'POST'])
-def create():
-    create_form = CreateRoomForm()
-    if create_form.validate_on_submit():
-        roomname = create_form.roomname.data
-        password = create_form.password.data
-        gameroom = GameRoom(roomname=roomname, password=password)
-        room = Room(player=current_user.id)
-        db.session.add_all([gameroom, room])
-        db.session.commit()
-    return render_template('create.html', form=create_form)
-
-@app.route('/join', methods=['GET', 'POST'])
-def join():
-    return render_template('join.html')
-
 @app.route('/lobby', methods=['GET', 'POST'])
 def lobby():
     return render_template('lobby.html')
@@ -61,8 +45,7 @@ def login():
     if login_form.validate_on_submit():
         user_object = User.query.filter_by(username=login_form.username.data).first()
         login_user(user_object, remember=login_form.remember_me.data)
-        if current_user.is_authenticated:
-            return redirect(url_for('room'))
+        return redirect(url_for('index'))
     return render_template("login.html", form=login_form)
 
 @app.route('/logout', methods=['GET'])
@@ -102,6 +85,25 @@ def reset_password(token):
         flash('Your password has been reset')
         return redirect(url_for('login'))
     return render_template('reset_password.html', form=form)
+
+@app.route('/create', methods=['GET', 'POST'])
+def create():
+    if current_user.is_anonymous:
+        return redirect(url_for('login'))
+    create_form = CreateRoomForm()
+    if create_form.validate_on_submit():
+        roomname = create_form.roomname.data
+        password = create_form.password.data
+        gameroom = GameRoom(roomname=roomname, password=password, host=current_user.id)
+        room = Room(roomname=roomname, player=current_user.id)
+        db.session.add_all([gameroom, room])
+        db.session.commit()
+        return redirect(url_for('room'))
+    return render_template('create.html', form=create_form)
+
+@app.route('/join', methods=['GET', 'POST'])
+def join():
+    return render_template('join.html')
 
 @app.route('/room', methods=['GET', 'POST'])
 def room():
