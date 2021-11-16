@@ -4,7 +4,7 @@ from wtforms.fields.core import BooleanField
 from wtforms.fields.simple import SubmitField
 from wtforms.validators import DataRequired, InputRequired, Length, EqualTo, ValidationError, Email
 from passlib.hash import pbkdf2_sha256
-from models import User
+from models import *
 
 def invalid_credentials(form, field):
     username_entered = form.username.data
@@ -62,3 +62,8 @@ class CreateRoomForm(FlaskForm):
     roomname = StringField('room_label', validators=[InputRequired(message="Room name required")])
     password = PasswordField('password_label')
     submit_button = SubmitField('Create room')
+
+    def validate_roomname(self, roomname):
+        room_object = GameRoom.query.filter_by(roomname=roomname.data).first()
+        if room_object:
+            raise ValidationError("Room name already exists.")

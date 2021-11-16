@@ -98,19 +98,20 @@ def create():
         room = Room(roomname=roomname, player=current_user.id)
         db.session.add_all([gameroom, room])
         db.session.commit()
-        return redirect(url_for('room'))
+        room_id = GameRoom.query.filter_by(roomname=roomname).first()
+        return redirect(url_for('room', username=current_user.username, room_id=room_id.id))
     return render_template('create.html', form=create_form)
 
 @app.route('/join', methods=['GET', 'POST'])
 def join():
     return render_template('join.html')
 
-@app.route('/room', methods=['GET', 'POST'])
-def room():
+@app.route('/room/<room_id>', methods=['GET', 'POST'])
+def room(room_id):
     if not current_user.is_authenticated:
         flash("Please login.", "danger")
         return redirect(url_for('login'))
-    return render_template('game.html', username=current_user.username)
+    return render_template('game.html', username=current_user.username, room_id=room_id)
 
 # sockets
 
