@@ -32,7 +32,7 @@ class GameRoom(db.Model):
     __tablename__ = 'games'
     id = db.Column(db.Integer, primary_key=True)
     roomname = db.Column(db.String(), unique=True, nullable=False)
-    password = db.Column(db.String(), nullable=False)
+    password = db.Column(db.String())
     host = db.Column(db.Integer, nullable=False)
     status = db.Column(db.Boolean, nullable=False, default=True)
 

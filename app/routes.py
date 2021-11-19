@@ -104,7 +104,17 @@ def create():
 
 @app.route('/join', methods=['GET', 'POST'])
 def join():
-    return render_template('join.html')
+    if current_user.is_anonymous:
+        return redirect(url_for('login'))
+    join_form = JoinRoomForm()
+    if join_form.validate_on_submit():
+        roomname = join_form.roomname.data
+        room = Room(roomname=roomname, player=current_user.id)
+        db.session.add(room)
+        db.session.commit()
+        room_id = GameRoom.query.filter_by(roomname=roomname).first()
+        return redirect(url_for('room', username=current_user.username, room_id=room_id.id))
+    return render_template('join.html', form=join_form)
 
 @app.route('/room/<room_id>', methods=['GET', 'POST'])
 def room(room_id):
