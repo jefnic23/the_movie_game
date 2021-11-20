@@ -4,8 +4,7 @@ function joinRoom(room) {
     socket.emit('join', {'room': room, 'username': username});
 }
 
-let room = 'Lounge';
-joinRoom('Lounge');
+joinRoom(room);
 
 socket.on('joined', data => {
     var div = document.createElement('div');

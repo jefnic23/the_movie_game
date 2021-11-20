@@ -16,6 +16,15 @@ def invalid_credentials(form, field):
     elif not pbkdf2_sha256.verify(password_entered, user_object.password):
         raise ValidationError("Username or password is incorrect")
 
+def incorrect_password(form, field):
+    roomname = form.roomname.data
+    password = field.data
+    
+    room_object = GameRoom.query.filter_by(roomname=roomname).first()
+    if room_object.password:
+        if password != room_object.password:
+            raise ValidationError("Incorrect password.")
+
 class RegistrationForm(FlaskForm):
     username = StringField('username_label', 
         validators=[InputRequired(message="Username required"), 
@@ -68,21 +77,17 @@ class CreateRoomForm(FlaskForm):
         if room_object:
             raise ValidationError("Room name already exists.")
 
-def incorrect_password(form, field):
-    roomname = form.roomname.data
-    password = field.data
-    
-    room_object = GameRoom.query.filter_by(roomname=roomname).first()
-    if room_object.password:
-        if password != room_object.password:
-            raise ValidationError("Incorrect password.")
-
 class JoinRoomForm(FlaskForm):
     roomname = StringField('room_label', validators=[InputRequired(message="Room name required")])
     password = PasswordField('password_label', validators=[incorrect_password])
     submit_button = SubmitField('Join room')
 
     def validate_roomname(self, roomname):
+        from flask_login import current_user
         room_object = GameRoom.query.filter_by(roomname=roomname.data).first()
         if not room_object:
-            raise ValidationError("Room name does not exist.")        
+            raise ValidationError("Room name does not exist.")  
+        else:
+            room = Room.query.filter_by(roomname=roomname.data, player=current_user.id).first()
+            if room:
+                raise ValidationError("You are already in this game.")
