@@ -21,8 +21,8 @@ def incorrect_password(form, field):
     password = field.data
     
     room_object = GameRoom.query.filter_by(roomname=roomname).first()
-    if room_object.password:
-        if password != room_object.password:
+    if room_object:
+        if room_object.password and password != room_object.password:
             raise ValidationError("Incorrect password.")
 
 class RegistrationForm(FlaskForm):

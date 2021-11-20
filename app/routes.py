@@ -121,7 +121,15 @@ def room(room):
     if not current_user.is_authenticated:
         flash("Please login.", "danger")
         return redirect(url_for('login'))
-    return render_template('game.html', username=current_user.username, room=room)
+    else:
+        room_id = GameRoom.query.filter_by(id=room).first()
+        if room_id:
+            present = Room.query.filter_by(roomname=room_id.roomname, player=current_user.id).first()
+            if present:
+                return render_template('game.html', username=current_user.username, room=room)
+        else:
+            flash("Please join or create a room.")
+            return redirect(url_for('lobby'))
 
 # sockets
 
