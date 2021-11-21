@@ -41,7 +41,7 @@ def login():
     if login_form.validate_on_submit():
         user_object = User.query.filter_by(username=login_form.username.data).first()
         login_user(user_object, remember=login_form.remember_me.data)
-        return redirect(url_for('index'))
+        return redirect(url_for('lobby'))
     return render_template("login.html", form=login_form)
 
 @app.route('/logout', methods=['GET'])
@@ -84,7 +84,8 @@ def reset_password(token):
 
 @app.route('/lobby', methods=['GET', 'POST'])
 def lobby():
-    rows = db.session.execute('SELECT * FROM games').fetchall()
+    q = 'SELECT t1.roomname, t1.password, t1.status, t2.count FROM games t1 JOIN (SELECT a.roomname, COUNT(a.roomname) FROM rooms a GROUP BY a.roomname) t2 ON t1.roomname = t2.roomname'
+    rows = db.session.execute(q).fetchall()
     data = {'rows': [dict(row) for row in rows]}
     return render_template('lobby.html', data=data)
 

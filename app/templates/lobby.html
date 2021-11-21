@@ -10,13 +10,11 @@
                 <th>Players</th>
                 <th>Status</th>
             </thead>
-            <tbody>
-
-            </tbody>
+            <tbody id='lobby'></tbody>
         </table>
     </div>
     <script type="text/javascript">
-        const data = `{{ data | tojson }}`
+        const data = {{ data | tojson }}
     </script>
     <script src="{{ url_for('static', filename='lobby.js') }}"></script>
 
