@@ -84,7 +84,9 @@ def reset_password(token):
 
 @app.route('/lobby', methods=['GET', 'POST'])
 def lobby():
-    return render_template('lobby.html')
+    rows = db.session.execute('SELECT * FROM games').fetchall()
+    data = {'rows': [dict(row) for row in rows]}
+    return render_template('lobby.html', data=data)
 
 @app.route('/create', methods=['GET', 'POST'])
 def create():
@@ -132,11 +134,6 @@ def room(room):
             return redirect(url_for('lobby'))
 
 # sockets
-
-@socketio.on('create')
-def on_create():
-    room = GameRoom.query.order_by(GameRoom.id.desc()).first()
-    print(f'\n{room.roomname}\n')
 
 @socketio.on('join')
 def on_join(data):

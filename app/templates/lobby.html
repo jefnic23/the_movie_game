@@ -15,6 +15,9 @@
             </tbody>
         </table>
     </div>
+    <script type="text/javascript">
+        const data = `{{ data | tojson }}`
+    </script>
     <script src="{{ url_for('static', filename='lobby.js') }}"></script>
 
 {% endblock %}
