@@ -7,10 +7,18 @@
         {% from "form_helper.html" import displayField %}
         {{ displayField(form.roomname, "Room name") }}
         {{ displayField(form.password, "Password (optional)") }}
-        <div>
+        <div onClick="createRoom()">
             {{ form.submit_button }}
         </div>
         {{ form.csrf_token }}
     </form>
+    <script>
+
+        var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
+        function createRoom() {
+            socket.emit('create');
+        }
+
+    </script>
 
 {% endblock %}

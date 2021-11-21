@@ -35,6 +35,9 @@ class Game:
             if len(self.players) == 1:
                 self.current_player = next(self.lineup)
 
+    def del_player(self, player):
+        self.players = [p for p in self.players if p != player]
+
     def add_to_round(self, search):
         self.add_collection(search)
         self.round.append(search)
@@ -59,6 +62,8 @@ class Game:
                 self.scores[player].take_letter()
                 self.current_player = next(self.lineup)
                 self.round_over = True
+                if self.scores[player].rollcall == 'BOMB':
+                    self.del_player(player)
         elif guess['media_type'] == 'person':
             movie = tmdb.Movies(test['id'])
             cast = [c['name'] for c in movie.credits()['cast']]
@@ -68,6 +73,8 @@ class Game:
                 self.scores[player].take_letter()
                 self.current_player = next(self.lineup)
                 self.round_over = True
+                if self.scores[player].rollcall == 'BOMB':
+                    self.del_player(player)
 
     def veto_challenge(self, veto=False):
         if veto:
@@ -79,3 +86,5 @@ class Game:
         self.scores[player].take_letter()
         self.current_player = next(self.lineup)
         self.round_over = True
+        if self.scores[player].rollcall == 'BOMB':
+            self.del_player(player)

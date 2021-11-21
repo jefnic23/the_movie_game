@@ -20,10 +20,6 @@ def load_user(id):
 def index():
     return render_template("index.html")
 
-@app.route('/lobby', methods=['GET', 'POST'])
-def lobby():
-    return render_template('lobby.html')
-
 @app.route("/register", methods=['GET', 'POST'])
 def register():
     reg_form = RegistrationForm()
@@ -53,7 +49,7 @@ def logout():
     if current_user.is_anonymous:
         return redirect(url_for("index"))
     logout_user()
-    flash("You have logged out successfully", "success")
+    flash("You have logged out successfully.", "success")
     return redirect(url_for("login"))
 
 @app.route("/reset_password_request", methods=['GET', 'POST'])
@@ -65,7 +61,7 @@ def reset_password_request():
         user = User.query.filter_by(email=form.email.data).first()
         if user:
             send_password_reset_email(user)
-        flash("Check your email for instructions on how to reset your password")
+        flash("Check your email for instructions on how to reset your password.")
         return redirect(url_for('login'))
     return render_template("reset_password_request.html", form=form)
 
@@ -82,9 +78,13 @@ def reset_password(token):
         hashed_pswd = pbkdf2_sha256.hash(password)
         user.set_password(hashed_pswd)
         db.session.commit()
-        flash('Your password has been reset')
+        flash('Your password has been reset.')
         return redirect(url_for('login'))
     return render_template('reset_password.html', form=form)
+
+@app.route('/lobby', methods=['GET', 'POST'])
+def lobby():
+    return render_template('lobby.html')
 
 @app.route('/create', methods=['GET', 'POST'])
 def create():
@@ -128,10 +128,15 @@ def room(room):
             if present:
                 return render_template('game.html', username=current_user.username, room=room)
         else:
-            flash("Please join or create a room.")
+            flash("Please join or create a room.", "danger")
             return redirect(url_for('lobby'))
 
 # sockets
+
+@socketio.on('create')
+def on_create():
+    room = GameRoom.query.order_by(GameRoom.id.desc()).first()
+    print(f'\n{room.roomname}\n')
 
 @socketio.on('join')
 def on_join(data):

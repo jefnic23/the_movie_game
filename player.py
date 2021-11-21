@@ -9,5 +9,6 @@ class Player:
         self.rollcall = ''
 
     def take_letter(self):
-        self.rollcall += self.BOMB[self._index]
-        self._index += 1
+        if self.rollcall != 'BOMB':
+            self.rollcall += self.BOMB[self._index]
+            self._index += 1
