@@ -2,9 +2,8 @@ from enum import unique
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from time import time
-import tmdbsimple as tmdb
 from itertools import cycle
-import jwt
+import jwt, tmdbsimple as tmdb
 from app import app
 
 db = SQLAlchemy()
@@ -37,6 +36,7 @@ class GameRoom(db.Model):
     password = db.Column(db.String())
     host = db.Column(db.Integer, nullable=False)
     status = db.Column(db.Boolean, nullable=False, default=True)
+    game = db.Column(db.JSON, nullable=False)
 
 class Room(db.Model):
     __tablename__ = 'rooms'
@@ -55,7 +55,8 @@ class Game:
         self.round_index = 0
         self.collection = []
         self.round_over = False
-        self.lineup = cycle(self.players)
+        self.game_over = False
+        self.lineup = cycle(self.players) # cycle might not be best?
         self.current_player = ''
 
     def reset_game(self):
@@ -130,7 +131,7 @@ class Game:
         self.round_over = True
         if self.scores[player].rollcall == 'BOMB':
             self.del_player(player)
-
+    
 class Player:
     def __init__(self, username):
         self.username = username

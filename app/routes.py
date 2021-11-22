@@ -4,12 +4,17 @@ from wtform_fields import *
 from models import *
 from app.email import send_password_reset_email
 from flask_socketio import SocketIO, send, emit, join_room, leave_room
+import json
 from app import app
 
 game = Game()
 socketio = SocketIO(app)
 login = LoginManager(app)
 login.init_app(app)
+
+def safe_serialize(obj):
+    default = lambda o: f"<<non-serializable: {type(o).__qualname__}>>"
+    return json.dumps(obj.__dict__, default=default)
 
 @login.user_loader
 def load_user(id):
@@ -96,7 +101,7 @@ def create():
     if create_form.validate_on_submit():
         roomname = create_form.roomname.data
         password = create_form.password.data
-        gameroom = GameRoom(roomname=roomname, password=password, host=current_user.id)
+        gameroom = GameRoom(roomname=roomname, password=password, host=current_user.id, game=safe_serialize(Game()))
         room = Room(roomname=roomname, player=current_user.id)
         db.session.add_all([gameroom, room])
         db.session.commit()
