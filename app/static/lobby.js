@@ -1,6 +1,7 @@
 function populateTable(data) {
     var table = document.querySelector('#lobby');
     for (let i=0; i < data.rows.length; i++) {
+        var row = document.createElement('tr');
         var roomname = data.rows[i].roomname;
         var password = data.rows[i].password;
         var players = data.rows[i].count;
