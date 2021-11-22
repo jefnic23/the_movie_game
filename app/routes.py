@@ -2,7 +2,6 @@ from flask import render_template, redirect, url_for, flash, session
 from flask_login import LoginManager, login_user, current_user, login_required, logout_user
 from wtform_fields import *
 from models import *
-from game import *
 from app.email import send_password_reset_email
 from flask_socketio import SocketIO, send, emit, join_room, leave_room
 from app import app
