@@ -1,4 +1,4 @@
-from flask import render_template, redirect, url_for, flash, request
+from flask import render_template, redirect, url_for, flash, session
 from flask_login import LoginManager, login_user, current_user, login_required, logout_user
 from wtform_fields import *
 from models import *
@@ -101,6 +101,7 @@ def create():
         room = Room(roomname=roomname, player=current_user.id)
         db.session.add_all([gameroom, room])
         db.session.commit()
+        game.add_player(current_user.username)
         room_id = GameRoom.query.filter_by(roomname=roomname).first()
         return redirect(url_for('room', username=current_user.username, room=room_id.id))
     return render_template('create.html', form=create_form)
@@ -115,6 +116,7 @@ def join():
         room = Room(roomname=roomname, player=current_user.id)
         db.session.add(room)
         db.session.commit()
+        game.add_player(current_user.username)
         room_id = GameRoom.query.filter_by(roomname=roomname).first()
         return redirect(url_for('room', username=current_user.username, room=room_id.id))
     return render_template('join.html', form=join_form)
@@ -140,7 +142,6 @@ def room(room):
 def on_join(data):
     username = data['username']
     room = data['room']
-    game.add_player(username)
     join_room(room)
     emit('joined', {'username': username, "players": game.players, "current_player": game.current_player, 'room': room}, room=room)
 
