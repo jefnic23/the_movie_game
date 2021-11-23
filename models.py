@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from time import time
 from itertools import cycle
-import jwt, tmdbsimple as tmdb
+import jwt, json, tmdbsimple as tmdb
 from app import app
 
 db = SQLAlchemy()
@@ -37,6 +37,9 @@ class GameRoom(db.Model):
     host = db.Column(db.Integer, nullable=False)
     status = db.Column(db.Boolean, nullable=False, default=True)
     game = db.Column(db.JSON, nullable=False)
+
+    def update_game(self, game):
+        self.game = game
 
 class Room(db.Model):
     __tablename__ = 'rooms'
@@ -131,6 +134,10 @@ class Game:
         self.round_over = True
         if self.scores[player].rollcall == 'BOMB':
             self.del_player(player)
+
+    def serialize(self):
+        default = lambda o: f"<<non-serializable: {type(o).__qualname__}>>"
+        return json.dumps(self.__dict__, default=default)
     
 class Player:
     def __init__(self, username):

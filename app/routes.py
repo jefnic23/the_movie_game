@@ -12,10 +12,6 @@ socketio = SocketIO(app)
 login = LoginManager(app)
 login.init_app(app)
 
-def safe_serialize(obj):
-    default = lambda o: f"<<non-serializable: {type(o).__qualname__}>>"
-    return json.dumps(obj.__dict__, default=default)
-
 @login.user_loader
 def load_user(id):
     return User.query.get(int(id))
@@ -101,13 +97,14 @@ def create():
     if create_form.validate_on_submit():
         roomname = create_form.roomname.data
         password = create_form.password.data
-        gameroom = GameRoom(roomname=roomname, password=password, host=current_user.id, game=safe_serialize(Game()))
+        # game = Game()
+        game.add_player(current_user.username)
+        gameroom = GameRoom(roomname=roomname, password=password, host=current_user.id, game=game.serialize())
         room = Room(roomname=roomname, player=current_user.id)
         db.session.add_all([gameroom, room])
         db.session.commit()
-        game.add_player(current_user.username)
-        room_id = GameRoom.query.filter_by(roomname=roomname).first()
-        return redirect(url_for('room', username=current_user.username, room=room_id.id))
+        # room_id = GameRoom.query.filter_by(roomname=roomname).first()
+        return redirect(url_for('room', username=current_user.username, room=gameroom.id))
     return render_template('create.html', form=create_form)
 
 @app.route('/join', methods=['GET', 'POST'])
@@ -118,11 +115,13 @@ def join():
     if join_form.validate_on_submit():
         roomname = join_form.roomname.data
         room = Room(roomname=roomname, player=current_user.id)
-        db.session.add(room)
-        db.session.commit()
         game.add_player(current_user.username)
-        room_id = GameRoom.query.filter_by(roomname=roomname).first()
-        return redirect(url_for('room', username=current_user.username, room=room_id.id))
+        gameroom = GameRoom.query.filter_by(roomname=roomname).first()
+        gameroom.update_game(game.serialize())
+        db.session.add_all([gameroom, room])
+        db.session.commit()
+        # room_id = GameRoom.query.filter_by(roomname=roomname).first()
+        return redirect(url_for('room', username=current_user.username, room=gameroom.id))
     return render_template('join.html', form=join_form)
 
 @app.route('/room/<room>', methods=['GET', 'POST'])
