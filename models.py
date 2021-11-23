@@ -59,8 +59,20 @@ class Game:
         self.collection = []
         self.round_over = False
         self.game_over = False
-        self.lineup = cycle(self.players) # cycle might not be best?
+        self.lineup = cycle(self.players)
         self.current_player = ''
+
+    def update_game(self, game):
+        game = json.loads(game)
+        self.scores = game['scores']
+        self.players = game['players']
+        self.round = game['round']
+        self.round_index = game['round_index']
+        self.collection = game['collection']
+        self.round_over = game['round_over']
+        self.game_over = game['game_over']
+        self.lineup = cycle(game['players'])
+        self.current_player = game['current_player']
 
     def reset_game(self):
         self.round = []

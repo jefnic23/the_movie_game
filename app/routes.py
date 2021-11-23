@@ -4,10 +4,8 @@ from wtform_fields import *
 from models import *
 from app.email import send_password_reset_email
 from flask_socketio import SocketIO, send, emit, join_room, leave_room
-import json
 from app import app
 
-game = Game()
 socketio = SocketIO(app)
 login = LoginManager(app)
 login.init_app(app)
@@ -97,13 +95,12 @@ def create():
     if create_form.validate_on_submit():
         roomname = create_form.roomname.data
         password = create_form.password.data
-        # game = Game()
+        game = Game()
         game.add_player(current_user.username)
         gameroom = GameRoom(roomname=roomname, password=password, host=current_user.id, game=game.serialize())
         room = Room(roomname=roomname, player=current_user.id)
         db.session.add_all([gameroom, room])
         db.session.commit()
-        # room_id = GameRoom.query.filter_by(roomname=roomname).first()
         return redirect(url_for('room', username=current_user.username, room=gameroom.id))
     return render_template('create.html', form=create_form)
 
@@ -115,12 +112,13 @@ def join():
     if join_form.validate_on_submit():
         roomname = join_form.roomname.data
         room = Room(roomname=roomname, player=current_user.id)
-        game.add_player(current_user.username)
         gameroom = GameRoom.query.filter_by(roomname=roomname).first()
+        game = Game()
+        game.update_game(gameroom.game)
+        game.add_player(current_user.username)
         gameroom.update_game(game.serialize())
         db.session.add_all([gameroom, room])
         db.session.commit()
-        # room_id = GameRoom.query.filter_by(roomname=roomname).first()
         return redirect(url_for('room', username=current_user.username, room=gameroom.id))
     return render_template('join.html', form=join_form)
 
