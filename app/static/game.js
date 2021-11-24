@@ -7,6 +7,8 @@ function joinRoom(room) {
 joinRoom(room);
 
 socket.on('joined', data => {
+    var players = data.players.map(player => JSON.parse(player));
+    var current_player = JSON.parse(data.current_player);
     var div = document.createElement('div');
     var img = document.createElement('img');
     var player = document.createElement('h2');
@@ -17,7 +19,7 @@ socket.on('joined', data => {
     div.append(img);
     div.append(player);
     document.querySelector('#avatar-container').append(div);
-    if (data.players.length === 2 && data.current_player === username) {
+    if (players.length === 2 && current_player.username === username) {
         document.getElementById("searchbar").disabled = false;
         document.getElementById("searchbtn").disabled = false;
     }
@@ -122,6 +124,7 @@ function veto() {
     socket.emit("veto", {'room': room});
 }
 
+var challenged = false;
 function challenge() {
     socket.emit("challenge", {'room': room});
 }
@@ -171,6 +174,7 @@ socket.on("challenged", data => {
     document.getElementById('challengebtn').hidden = true;
     document.getElementById('challengebtn').disabled = true;
     timer(data.current_player);
+    challenged = true;
 });
 
 socket.on('times_up', data => {

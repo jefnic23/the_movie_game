@@ -52,7 +52,6 @@ class Room(db.Model):
 class Game:
     tmdb.API_KEY = app.config['API_KEY']
     def __init__(self):
-        self.scores = {}
         self.players = []
         self.round = []
         self.round_index = 0
@@ -64,15 +63,25 @@ class Game:
 
     def update_game(self, game):
         game = json.loads(game)
-        self.scores = game['scores']
-        self.players = game['players']
+        self.players = []
+        for player in game['players']:
+            player = json.loads(player)
+            updated_player = Player(player['username'])
+            updated_player._index = player['_index']
+            updated_player.rollcall = player['rollcall']
+            if updated_player not in self.players:
+                self.players.append(updated_player)
         self.round = game['round']
         self.round_index = game['round_index']
         self.collection = game['collection']
         self.round_over = game['round_over']
         self.game_over = game['game_over']
         self.lineup = cycle(game['players'])
-        self.current_player = game['current_player']
+        current_player = json.loads(game['current_player'])
+        updated_current_player = Player(current_player['username'])
+        updated_current_player._index = current_player['_index']
+        updated_current_player.rollcall = current_player['rollcall']
+        self.current_player = updated_current_player
 
     def reset_game(self):
         self.round = []
@@ -88,8 +97,7 @@ class Game:
 
     def add_player(self, player):
         if player not in self.players:
-            self.players.append(player)
-            self.scores[player] = Player(player)
+            self.players.append(Player(player))
             if len(self.players) == 1:
                 self.current_player = next(self.lineup)
 
@@ -117,10 +125,10 @@ class Game:
             if test['id'] in cast:
                 self.add_to_round(guess)
             else:
-                self.scores[player].take_letter()
+                self.current_player.take_letter()
                 self.current_player = next(self.lineup)
                 self.round_over = True
-                if self.scores[player].rollcall == 'BOMB':
+                if self.current_player.rollcall == 'BOMB':
                     self.del_player(player)
         elif guess['media_type'] == 'person':
             movie = tmdb.Movies(test['id'])
@@ -128,10 +136,10 @@ class Game:
             if guess['id'] in cast:
                 self.add_to_round(guess)
             else:
-                self.scores[player].take_letter()
+                self.current_player.take_letter()
                 self.current_player = next(self.lineup)
                 self.round_over = True
-                if self.scores[player].rollcall == 'BOMB':
+                if self.current_player.rollcall == 'BOMB':
                     self.del_player(player)
 
     def veto_challenge(self, veto=False):
@@ -141,14 +149,16 @@ class Game:
             self.current_player = next(self.lineup)
 
     def times_up(self, player):
-        self.scores[player].take_letter()
+        self.current_player.take_letter()
         self.current_player = next(self.lineup)
         self.round_over = True
-        if self.scores[player].rollcall == 'BOMB':
+        if self.current_player.rollcall == 'BOMB':
             self.del_player(player)
 
-    def serialize(self): # figure out how to serialize Player class
+    def serialize(self):
         default = lambda o: f"<<non-serializable: {type(o).__qualname__}>>"
+        self.players = [player.serialize() for player in self.players]
+        self.current_player = self.current_player.serialize()
         return json.dumps(self.__dict__, default=default)
     
 class Player:
@@ -162,3 +172,7 @@ class Player:
         if self.rollcall != 'BOMB':
             self.rollcall += self.BOMB[self._index]
             self._index += 1
+
+    def serialize(self): # figure out how to serialize Player class
+        default = lambda o: f"<<non-serializable: {type(o).__qualname__}>>"
+        return json.dumps(self.__dict__, default=default)

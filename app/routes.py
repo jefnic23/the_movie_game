@@ -3,6 +3,7 @@ from flask_login import LoginManager, login_user, current_user, login_required, 
 from flask_socketio import SocketIO, send, emit, join_room, leave_room
 from wtform_fields import *
 from models import *
+import json
 from app.email import send_password_reset_email
 from app import app
 
@@ -113,7 +114,7 @@ def join():
         roomname = join_form.roomname.data
         room = Room(roomname=roomname, player=current_user.id)
         gameroom = GameRoom.query.filter_by(roomname=roomname).first()
-        # game.update_game(gameroom.game)
+        game.update_game(gameroom.game)
         game.add_player(current_user.username)
         gameroom.update_game(game.serialize())
         db.session.add_all([gameroom, room])
@@ -129,9 +130,10 @@ def room(room_id):
     else:
         room = GameRoom.query.filter_by(id=room_id).first()
         if room:
+            # game.update_game(room.game)
             present = Room.query.filter_by(roomname=room.roomname, player=current_user.id).first()
             if present:
-                return render_template('game.html', username=current_user.username, room=room)
+                return render_template('game.html', username=current_user.username, room=room.id)
         else:
             flash("Please join or create a room.", "danger")
             return redirect(url_for('lobby'))
@@ -154,7 +156,7 @@ def on_search(data):
         game.add_to_round(guess)
     else:
         game.check_answer(guess, player)
-    emit("answer", {"answer": guess, "round_over": game.round_over, "round_index": game.round_index, "current_player": game.current_player, "player": player, "score": game.scores[player].rollcall}, room=room)
+    emit("answer", {"answer": guess, "round_over": game.round_over, "round_index": game.round_index, "current_player": game.current_player, "player": player, "score": game.players[player].rollcall}, room=room)
 
 @socketio.on("veto")
 def on_veto(data):
@@ -171,7 +173,7 @@ def no_time(data):
     player = data['current_player']
     room = data['room']
     game.times_up(player)
-    emit('times_up', {'player': player, "score": game.scores[player].rollcall, "current_player": game.current_player}, room=room)
+    emit('times_up', {'player': player, "score": game.players[player].rollcall, "current_player": game.current_player}, room=room)
 
 @socketio.on('restart')
 def on_restart():
