@@ -147,7 +147,7 @@ class Game:
         if self.scores[player].rollcall == 'BOMB':
             self.del_player(player)
 
-    def serialize(self):
+    def serialize(self): # figure out how to serialize Player class
         default = lambda o: f"<<non-serializable: {type(o).__qualname__}>>"
         return json.dumps(self.__dict__, default=default)
     

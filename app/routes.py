@@ -1,11 +1,12 @@
 from flask import render_template, redirect, url_for, flash, session
 from flask_login import LoginManager, login_user, current_user, login_required, logout_user
+from flask_socketio import SocketIO, send, emit, join_room, leave_room
 from wtform_fields import *
 from models import *
 from app.email import send_password_reset_email
-from flask_socketio import SocketIO, send, emit, join_room, leave_room
 from app import app
 
+game = Game()
 socketio = SocketIO(app)
 login = LoginManager(app)
 login.init_app(app)
@@ -95,13 +96,12 @@ def create():
     if create_form.validate_on_submit():
         roomname = create_form.roomname.data
         password = create_form.password.data
-        game = Game()
         game.add_player(current_user.username)
         gameroom = GameRoom(roomname=roomname, password=password, host=current_user.id, game=game.serialize())
         room = Room(roomname=roomname, player=current_user.id)
         db.session.add_all([gameroom, room])
         db.session.commit()
-        return redirect(url_for('room', username=current_user.username, room=gameroom.id))
+        return redirect(url_for('room', room_id=gameroom.id))
     return render_template('create.html', form=create_form)
 
 @app.route('/join', methods=['GET', 'POST'])
@@ -113,24 +113,23 @@ def join():
         roomname = join_form.roomname.data
         room = Room(roomname=roomname, player=current_user.id)
         gameroom = GameRoom.query.filter_by(roomname=roomname).first()
-        game = Game()
-        game.update_game(gameroom.game)
+        # game.update_game(gameroom.game)
         game.add_player(current_user.username)
         gameroom.update_game(game.serialize())
         db.session.add_all([gameroom, room])
         db.session.commit()
-        return redirect(url_for('room', username=current_user.username, room=gameroom.id))
+        return redirect(url_for('room', room_id=gameroom.id))
     return render_template('join.html', form=join_form)
 
-@app.route('/room/<room>', methods=['GET', 'POST'])
-def room(room):
+@app.route('/room/<room_id>', methods=['GET', 'POST'])
+def room(room_id):
     if not current_user.is_authenticated:
         flash("Please login.", "danger")
         return redirect(url_for('login'))
     else:
-        room_id = GameRoom.query.filter_by(id=room).first()
-        if room_id:
-            present = Room.query.filter_by(roomname=room_id.roomname, player=current_user.id).first()
+        room = GameRoom.query.filter_by(id=room_id).first()
+        if room:
+            present = Room.query.filter_by(roomname=room.roomname, player=current_user.id).first()
             if present:
                 return render_template('game.html', username=current_user.username, room=room)
         else:
