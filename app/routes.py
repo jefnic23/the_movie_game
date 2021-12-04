@@ -1,5 +1,6 @@
 from flask import render_template, redirect, url_for, flash, session
-from flask_login import LoginManager, login_user, current_user, login_required, logout_user
+from flask_login import LoginManager, login_user, current_user, logout_user
+from flask_bootstrap import Bootstrap
 from flask_socketio import SocketIO, send, emit, join_room, leave_room
 from wtform_fields import *
 from models import *
@@ -8,6 +9,7 @@ from app.email import send_password_reset_email
 from app import app
 
 game = Game()
+bootstrap = Bootstrap(app)
 socketio = SocketIO(app)
 login = LoginManager(app)
 login.init_app(app)
@@ -40,6 +42,9 @@ def login():
     login_form = LoginForm()
     if login_form.validate_on_submit():
         user_object = User.query.filter_by(username=login_form.username.data).first()
+        if not user_object or not user_object.check_password(login_form.password.data):
+            flash('Invalid username or password', 'danger')
+            return redirect(url_for('login'))
         login_user(user_object, remember=login_form.remember_me.data)
         return redirect(url_for('lobby'))
     return render_template("login.html", form=login_form)

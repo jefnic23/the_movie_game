@@ -6,24 +6,6 @@ from wtforms.validators import DataRequired, InputRequired, Length, EqualTo, Val
 from passlib.hash import pbkdf2_sha256
 from models import *
 
-def invalid_credentials(form, field):
-    username_entered = form.username.data
-    password_entered = field.data
-
-    user_object = User.query.filter_by(username=username_entered).first()
-    if user_object is None:
-        raise ValidationError("Username or password is incorrect")
-    elif not pbkdf2_sha256.verify(password_entered, user_object.password):
-        raise ValidationError("Username or password is incorrect")
-
-def incorrect_password(form, field):
-    roomname = form.roomname.data
-    password = field.data
-    
-    room_object = GameRoom.query.filter_by(roomname=roomname).first()
-    if room_object:
-        if room_object.password and password != room_object.password:
-            raise ValidationError("Incorrect password.")
 
 class RegistrationForm(FlaskForm):
     username = StringField('username_label', 
@@ -50,7 +32,7 @@ class RegistrationForm(FlaskForm):
 
 class LoginForm(FlaskForm):
     username = StringField('username_label', validators=[InputRequired(message="Username required")])
-    password = PasswordField('password_label', validators=[InputRequired(message="Password required"), invalid_credentials])
+    password = PasswordField('password_label', validators=[InputRequired(message="Password required")])
     remember_me = BooleanField('Remember me')
     submit_button = SubmitField('Login')
 
@@ -79,7 +61,7 @@ class CreateRoomForm(FlaskForm):
 
 class JoinRoomForm(FlaskForm):
     roomname = StringField('room_label', validators=[InputRequired(message="Room name required")])
-    password = PasswordField('password_label', validators=[incorrect_password])
+    password = PasswordField('password_label')
     submit_button = SubmitField('Join room')
 
     def validate_roomname(self, roomname):
@@ -91,3 +73,10 @@ class JoinRoomForm(FlaskForm):
             room = Room.query.filter_by(roomname=roomname.data, player=current_user.id).first()
             if room:
                 raise ValidationError("You are already in this game.")
+
+    def incorrect_password(self, password):
+        roomname = self.roomname.data
+        room_object = GameRoom.query.filter_by(roomname=roomname).first()
+        if room_object:
+            if room_object.password and password != room_object.password:
+                raise ValidationError("Incorrect password.")
