@@ -156,7 +156,7 @@ def on_search(data):
         game.add_to_round(guess)
     else:
         game.check_answer(guess, player)
-    emit("answer", {"answer": guess, "round_over": game.round_over, "round_index": game.round_index, "current_player": game.current_player, "player": player, "score": game.players[player].rollcall}, room=room)
+    emit("answer", {"answer": guess, "game": game.serialize()}, room=room)
 
 @socketio.on("veto")
 def on_veto(data):
@@ -173,7 +173,7 @@ def no_time(data):
     player = data['current_player']
     room = data['room']
     game.times_up(player)
-    emit('times_up', {'player': player, "score": game.players[player].rollcall, "current_player": game.current_player}, room=room)
+    emit('times_up', {'player': player, "score": game.current_player.rollcall, "current_player": game.current_player}, room=room)
 
 @socketio.on('restart')
 def on_restart():

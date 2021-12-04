@@ -173,6 +173,6 @@ class Player:
             self.rollcall += self.BOMB[self._index]
             self._index += 1
 
-    def serialize(self): # figure out how to serialize Player class
+    def serialize(self):
         default = lambda o: f"<<non-serializable: {type(o).__qualname__}>>"
         return json.dumps(self.__dict__, default=default)

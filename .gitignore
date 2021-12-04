@@ -6,5 +6,4 @@ pyvenv.cfg
 Lib/
 app/__pycache__/
 Scripts/
-config.py
 Include/
