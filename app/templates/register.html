@@ -1,18 +1,11 @@
 {% extends "layout.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
 
-{% block content %}
+{% block app_content %}
 
-    <h1>Get started</h1>
-    <form action="", method="POST">
-        {% from "form_helper.html" import displayField %}
-        {{ displayField(form.username, "Username", autocomplete="off", autofocus=true) }}
-        {{ displayField(form.email, "Email") }}
-        {{ displayField(form.password, "Password") }}
-        {{ displayField(form.confirm_pswd, "Retype Password") }}
-        <div>
-            {{ form.submit_button }}
-        </div>
-        {{ form.csrf_token }}
-    </form>
+    <div class='container form-group'>
+        <h1>Get started</h1>
+        {{ wtf.quick_form(form) }}
+    </div>
 
 {% endblock %}

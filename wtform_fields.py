@@ -8,14 +8,14 @@ from models import *
 
 
 class RegistrationForm(FlaskForm):
-    username = StringField('username_label', 
+    username = StringField('Username', 
         validators=[InputRequired(message="Username required"), 
         Length(min=4, max=25, message="Username must be between 4 and 25 characters")])
-    email = StringField('email_label', validators=[DataRequired(), Email()])
-    password = PasswordField('password_label',
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    password = PasswordField('Password',
         validators=[InputRequired(message="Password required"), 
         Length(min=8, message="Password must be at least 8 characters")])
-    confirm_pswd = PasswordField('confirm_pswd_label',
+    confirm_pswd = PasswordField('Confirm password',
         validators=[InputRequired(message="Password required"), 
         EqualTo("password", message="Passwords must match")])
     submit_button = SubmitField("Register")
@@ -30,28 +30,32 @@ class RegistrationForm(FlaskForm):
         if user_object:
             raise ValidationError("An account with this email already exists.")
 
+
 class LoginForm(FlaskForm):
-    username = StringField('username_label', validators=[InputRequired(message="Username required")])
-    password = PasswordField('password_label', validators=[InputRequired(message="Password required")])
+    username = StringField('Username', validators=[InputRequired(message="Username required")])
+    password = PasswordField('Password', validators=[InputRequired(message="Password required")])
     remember_me = BooleanField('Remember me')
     submit_button = SubmitField('Login')
 
+
 class ResetPasswordRequestForm(FlaskForm):
-    email = StringField("email_label", validators=[DataRequired(), Email()])
+    email = StringField("Enter your email", validators=[DataRequired(), Email()])
     submit_button = SubmitField("Request Password Reset")
 
+
 class ResetPasswordForm(FlaskForm):
-    password = PasswordField('password_label',
+    password = PasswordField('New password',
         validators=[InputRequired(message="Password required"), 
         Length(min=8, message="Password must be at least 8 characters")])
-    confirm_pswd = PasswordField('confirm_pswd_label',
+    confirm_pswd = PasswordField('Confirm new password',
         validators=[InputRequired(message="Password required"), 
         EqualTo("password", message="Passwords must match")])
     submit_button = SubmitField("Submit new password")
 
+
 class CreateRoomForm(FlaskForm):
-    roomname = StringField('room_label', validators=[InputRequired(message="Room name required")])
-    password = PasswordField('password_label')
+    roomname = StringField('Create a name for your room', validators=[InputRequired(message="Room name required")])
+    password = PasswordField("Enter a password if you'd like your room to be private")
     submit_button = SubmitField('Create room')
 
     def validate_roomname(self, roomname):
@@ -59,9 +63,10 @@ class CreateRoomForm(FlaskForm):
         if room_object:
             raise ValidationError("Room name already exists.")
 
+
 class JoinRoomForm(FlaskForm):
-    roomname = StringField('room_label', validators=[InputRequired(message="Room name required")])
-    password = PasswordField('password_label')
+    roomname = StringField('Enter the name of the room you want to join', validators=[InputRequired(message="Room name required")])
+    password = PasswordField("Enter the room's password, if applicable")
     submit_button = SubmitField('Join room')
 
     def validate_roomname(self, roomname):

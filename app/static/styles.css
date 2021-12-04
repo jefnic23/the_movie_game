@@ -3,16 +3,27 @@
 }
 
 body {
-    background: #31343A;
+    background-color: #121212;
+    color: rgba(255, 255, 255, 0.87);
 }
 
 a {
     text-decoration: none;
-    color: white;
 }
 
 a:hover {
     text-decoration: underline;
+}
+
+.control-label {
+    font-weight: normal;
+}
+
+.login-link {
+    position: relative;
+    display: block;
+    margin-top: 10px;
+    margin-bottom: 10px;
 }
 
 .center {

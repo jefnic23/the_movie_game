@@ -1,16 +1,11 @@
 {% extends "layout.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
 
-{% block content %}
+{% block app_content %}
 
-    <h1>Join a room</h1>
-    <form action="", method="POST">
-        {% from "form_helper.html" import displayField %}
-        {{ displayField(form.roomname, "Room name") }}
-        {{ displayField(form.password, "Password (if applicable)") }}
-        <div>
-            {{ form.submit_button }}
-        </div>
-        {{ form.csrf_token }}
-    </form>
+    <div class="container form-group">
+        <h1>Join a room</h1>
+        {{ wtf.quick_form(form) }}
+    </div>
 
 {% endblock %}

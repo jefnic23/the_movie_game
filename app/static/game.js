@@ -7,6 +7,7 @@ function joinRoom(room) {
 joinRoom(room);
 
 socket.on('joined', data => {
+    console.log(data);
     var players = data.players.map(player => JSON.parse(player));
     var current_player = JSON.parse(data.current_player);
     var div = document.createElement('div');

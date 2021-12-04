@@ -1,4 +1,4 @@
-from flask import render_template, redirect, url_for, flash, session
+from flask import render_template, redirect, url_for, flash
 from flask_login import LoginManager, login_user, current_user, logout_user
 from flask_bootstrap import Bootstrap
 from flask_socketio import SocketIO, send, emit, join_room, leave_room
@@ -33,7 +33,7 @@ def register():
         user = User(username=username, password=hashed_pswd, email=email)
         db.session.add(user)
         db.session.commit()
-        flash('Registered successfully. Please login.', 'success')
+        flash('Registered successfully, please login', 'success')
         return redirect(url_for('login'))
     return render_template("register.html", form=reg_form)
 
@@ -54,7 +54,7 @@ def logout():
     if current_user.is_anonymous:
         return redirect(url_for("index"))
     logout_user()
-    flash("You have logged out successfully.", "success")
+    flash("You have logged out successfully", "success")
     return redirect(url_for("login"))
 
 @app.route("/reset_password_request", methods=['GET', 'POST'])
@@ -66,7 +66,7 @@ def reset_password_request():
         user = User.query.filter_by(email=form.email.data).first()
         if user:
             send_password_reset_email(user)
-        flash("Check your email for instructions on how to reset your password.")
+        flash("Check your email for instructions on how to reset your password", 'info')
         return redirect(url_for('login'))
     return render_template("reset_password_request.html", form=form)
 
@@ -83,7 +83,7 @@ def reset_password(token):
         hashed_pswd = pbkdf2_sha256.hash(password)
         user.set_password(hashed_pswd)
         db.session.commit()
-        flash('Your password has been reset.')
+        flash('Your password has been reset', "success")
         return redirect(url_for('login'))
     return render_template('reset_password.html', form=form)
 
@@ -130,7 +130,7 @@ def join():
 @app.route('/room/<room_id>', methods=['GET', 'POST'])
 def room(room_id):
     if not current_user.is_authenticated:
-        flash("Please login.", "danger")
+        flash("Please login", "danger")
         return redirect(url_for('login'))
     else:
         room = GameRoom.query.filter_by(id=room_id).first()
@@ -140,7 +140,7 @@ def room(room_id):
             if present:
                 return render_template('game.html', username=current_user.username, room=room.id)
         else:
-            flash("Please join or create a room.", "danger")
+            flash("Please join or create a room", "danger")
             return redirect(url_for('lobby'))
 
 # sockets

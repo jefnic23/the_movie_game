@@ -7,6 +7,11 @@
     <link rel="icon" href="{{ url_for('static', filename='icon.png') }}">
     <link rel="shortcut icon" href="{{ url_for('static', filename='icon.png') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    {% if room %}
+        <script src="{{ url_for('static', filename='config.js') }}"></script>
+        <script src="{{ url_for('static', filename='themoviedb.js') }}"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
+    {% endif %}
 {% endblock %}
 
 {% block navbar %}
@@ -32,13 +37,16 @@
         </div>
     </nav>
 {% endblock %}
-        
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                Category: {{ messages[0][0] }}
-                {{ messages[0][1] }}
-            {% endif %}
-        {% endwith %}
 
-        {% block content %}
-        {% endblock %}
+{% block content %} 
+    <br>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="container alert alert-{{ category }}" role="alert">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    {% block app_content %}{% endblock %}
+{% endblock %}
