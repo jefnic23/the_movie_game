@@ -80,12 +80,13 @@ class Game:
         self.collection = game['collection']
         self.round_over = game['round_over']
         self.game_over = game['game_over']
-        self.lineup = cycle(game['players'])
+        self.lineup = cycle(self.players)
         current_player = json.loads(game['current_player'])
         updated_current_player = Player(current_player['username'])
         updated_current_player._index = current_player['_index']
         updated_current_player.rollcall = current_player['rollcall']
         self.current_player = updated_current_player
+        self.current_player = next(self.lineup)
 
     def reset_game(self):
         self.round = []
@@ -106,7 +107,7 @@ class Game:
                 self.current_player = next(self.lineup)
 
     def del_player(self, player):
-        self.players = [p for p in self.players if p != player]
+        self.players = [p for p in self.players if p['username'] != player]
 
     def add_to_round(self, search):
         self.add_collection(search)
@@ -158,6 +159,9 @@ class Game:
         self.round_over = True
         if self.current_player.rollcall == 'BOMB':
             self.del_player(player)
+
+    def find_player(self, player):
+        return [p for p in self.players if p.username == player][0]
 
     def serialize(self):
         default = lambda o: f"<<non-serializable: {type(o).__qualname__}>>"

@@ -7,9 +7,8 @@ function joinRoom(room) {
 joinRoom(room);
 
 socket.on('joined', data => {
-    console.log(data);
     var players = data.players.map(player => JSON.parse(player));
-    var current_player = JSON.parse(data.current_player);
+    var current_player = data.current_player;
     var div = document.createElement('div');
     var img = document.createElement('img');
     var player = document.createElement('h2');
@@ -20,7 +19,7 @@ socket.on('joined', data => {
     div.append(img);
     div.append(player);
     document.querySelector('#avatar-container').append(div);
-    if (players.length === 2 && current_player.username === username) {
+    if (players.length === 2 && current_player === username) {
         document.getElementById("searchbar").disabled = false;
         document.getElementById("searchbtn").disabled = false;
     }
@@ -61,7 +60,7 @@ function successCB(data) {
             li.appendChild(a);
             results.appendChild(li);
         } else if (data.results[i].media_type === "person" && data.results[i].known_for_department === "Acting" && !search.some(x => x.id === data.results[i].name)) {
-            var id = data.results[i].name;
+            var id = data.results[i].name; // normalize special characters
             var media_type = data.results[i].media_type;
             d.id = id;
             d.media_type = media_type;
@@ -192,7 +191,7 @@ socket.on('times_up', data => {
 });
 
 socket.on('answer', data => {
-    console.log(data);
+    console.log(`${username}, ${data.current_player}`);
     timesUp();
     if (data.round_index === 1 && data.current_player === username) {
         document.getElementById('vetobtn').hidden = false;

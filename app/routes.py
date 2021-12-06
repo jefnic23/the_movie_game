@@ -94,6 +94,15 @@ def lobby():
     data = {'rows': [dict(row) for row in rows]}
     return render_template('lobby.html', data=data)
 
+@app.route('/profile/<username>')
+def profile(username):
+    if current_user.is_anonymous:
+        flash("Please login to access your profile", "danger")
+        return redirect(url_for('login'))
+    rooms = Room.query.filter_by(player=current_user.id).all()
+    print(f'\n{rooms}\n')
+    return render_template('profile.html')
+
 @app.route('/create', methods=['GET', 'POST'])
 def create():
     if current_user.is_anonymous:
@@ -135,7 +144,7 @@ def room(room_id):
     else:
         room = GameRoom.query.filter_by(id=room_id).first()
         if room:
-            # game.update_game(room.game)
+            game.update_game(room.game)
             present = Room.query.filter_by(roomname=room.roomname, player=current_user.id).first()
             if present:
                 return render_template('game.html', username=current_user.username, room=room.id)
@@ -150,35 +159,35 @@ def on_join(data):
     username = data['username']
     room = data['room']
     join_room(room)
-    emit('joined', {'username': username, "players": game.players, "current_player": game.current_player, 'room': room}, room=room)
+    emit('joined', {'username': username, "players": [player.serialize() for player in game.players], "current_player": game.current_player.username, 'room': room}, room=room)
 
 @socketio.on('search')
 def on_search(data):
-    player = data['username']
+    player = game.find_player(data['username'])
     guess = data['guess']
     room = data['room']
     if game.round_index == 0:
         game.add_to_round(guess)
     else:
         game.check_answer(guess, player)
-    emit("answer", {"answer": guess, "game": game.serialize()}, room=room)
+    emit("answer", {"answer": guess, "player": player.username, "score": player.rollcall, "current_player": game.current_player.username, "round_index": game.round_index, 'round_over': game.round_over}, room=room)
 
 @socketio.on("veto")
 def on_veto(data):
     game.veto_challenge(veto=True)
-    emit("vetoed", {"current_player": game.current_player}, room=data['room'])
+    emit("vetoed", {"current_player": game.current_player.username}, room=data['room'])
 
 @socketio.on("challenge")
 def on_veto(data):
     game.veto_challenge()
-    emit("challenged", {"current_player": game.current_player, "round_index": game.round_index}, room=data['room'])
+    emit("challenged", {"current_player": game.current_player.username, "round_index": game.round_index}, room=data['room'])
 
 @socketio.on('noTime')
 def no_time(data):
-    player = data['current_player']
+    player = game.find_player(data['current_player'])
     room = data['room']
-    game.times_up(player)
-    emit('times_up', {'player': player, "score": game.current_player.rollcall, "current_player": game.current_player}, room=room)
+    game.times_up(game.current_player)
+    emit('times_up', {'player': player.username, "score": player.rollcall, "current_player": game.current_player.username}, room=room)
 
 @socketio.on('restart')
 def on_restart():
