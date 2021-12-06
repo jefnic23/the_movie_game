@@ -1,16 +1,15 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField
-from wtforms.fields.core import BooleanField
+from wtforms import StringField, PasswordField, BooleanField
 from wtforms.fields.simple import SubmitField
 from wtforms.validators import DataRequired, InputRequired, Length, EqualTo, ValidationError, Email
-from passlib.hash import pbkdf2_sha256
 from models import *
 
 
 class RegistrationForm(FlaskForm):
     username = StringField('Username', 
         validators=[InputRequired(message="Username required"), 
-        Length(min=4, max=25, message="Username must be between 4 and 25 characters")])
+        Length(min=4, max=25, message="Username must be between 4 and 25 characters")],
+        render_kw={'autofocus': True})
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password',
         validators=[InputRequired(message="Password required"), 
@@ -32,21 +31,22 @@ class RegistrationForm(FlaskForm):
 
 
 class LoginForm(FlaskForm):
-    username = StringField('Username', validators=[InputRequired(message="Username required")])
+    username = StringField('Username', validators=[InputRequired(message="Username required")], render_kw={'autofocus': True})
     password = PasswordField('Password', validators=[InputRequired(message="Password required")])
     remember_me = BooleanField('Remember me')
     submit_button = SubmitField('Login')
 
 
 class ResetPasswordRequestForm(FlaskForm):
-    email = StringField("Enter your email", validators=[DataRequired(), Email()])
+    email = StringField("Enter your email", validators=[DataRequired(), Email()], render_kw={'autofocus': True})
     submit_button = SubmitField("Request Password Reset")
 
 
 class ResetPasswordForm(FlaskForm):
     password = PasswordField('New password',
         validators=[InputRequired(message="Password required"), 
-        Length(min=8, message="Password must be at least 8 characters")])
+        Length(min=8, message="Password must be at least 8 characters")], 
+        render_kw={'autofocus': True})
     confirm_pswd = PasswordField('Confirm new password',
         validators=[InputRequired(message="Password required"), 
         EqualTo("password", message="Passwords must match")])
@@ -54,7 +54,7 @@ class ResetPasswordForm(FlaskForm):
 
 
 class CreateRoomForm(FlaskForm):
-    roomname = StringField('Create a name for your room', validators=[InputRequired(message="Room name required")])
+    roomname = StringField('Create a name for your room', validators=[InputRequired(message="Room name required")], render_kw={'autofocus': True})
     password = PasswordField("Enter a password if you'd like your room to be private")
     submit_button = SubmitField('Create room')
 
@@ -65,7 +65,7 @@ class CreateRoomForm(FlaskForm):
 
 
 class JoinRoomForm(FlaskForm):
-    roomname = StringField('Enter the name of the room you want to join', validators=[InputRequired(message="Room name required")])
+    roomname = StringField('Enter the name of the room you want to join', validators=[InputRequired(message="Room name required")], render_kw={'autofocus': True})
     password = PasswordField("Enter the room's password, if applicable")
     submit_button = SubmitField('Join room')
 

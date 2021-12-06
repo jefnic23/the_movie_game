@@ -2,20 +2,35 @@
 
 {% block app_content %}
 
-    <div class="table-wrapper">
-        <table>
+    <div class="container">
+        <table class="table table-bordered">
             <thead>
                 <th>Join</th>
                 <th>Room Name</th>
                 <th>Players</th>
                 <th>Status</th>
             </thead>
-            <tbody id='lobby'></tbody>
+            <tbody>
+                {% if rows %}
+                    {% for row in rows %}
+                        <tr>
+                            <td><a class="btn btn-default" role="button" href="{{ url_for('invite', invitation=row.roomname) }}">Join</a></td>
+                            <td>{{ row.roomname }}</td>
+                            <td>{{ row.count }}</td>
+                            {% if row.password %}
+                                <td>Locked</td>
+                            {% else %}
+                                <td>Unlocked</td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="4">No active games</td>
+                    </tr>
+                {% endif %}
+            </tbody>
         </table>
     </div>
-    <script type="text/javascript">
-        const data = {{ data | tojson }}
-    </script>
-    <script src="{{ url_for('static', filename='lobby.js') }}"></script>
 
 {% endblock %}

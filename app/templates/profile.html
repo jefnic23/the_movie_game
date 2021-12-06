@@ -1,5 +1,27 @@
 {% extends "layout.html" %}
 
 {% block app_content %}
-    
+
+<div class="container">
+    <table class="table table-bordered">
+        <thead>
+            <th>Play</th>
+            <th>Room Name</th>
+        </thead>
+        <tbody>
+            {% if rooms %}
+                {% for room in rooms %}
+                    <tr>
+                        <td><a class="btn btn-default" role="button" href="{{ url_for('room', room_id=room.room_id) }}">Play</a></td>
+                        <td>{{ room.roomname }}</td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="2">No active games</td>
+                </tr>
+            {% endif %}
+    </table>
+</div>
+
 {% endblock %}

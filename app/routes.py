@@ -42,11 +42,13 @@ def login():
     login_form = LoginForm()
     if login_form.validate_on_submit():
         user_object = User.query.filter_by(username=login_form.username.data).first()
+        db.session.commit()
         if not user_object or not user_object.check_password(login_form.password.data):
             flash('Invalid username or password', 'danger')
             return redirect(url_for('login'))
         login_user(user_object, remember=login_form.remember_me.data)
-        return redirect(url_for('lobby'))
+        flash('Login successful', 'success')
+        return redirect(url_for('profile', username=current_user.username))
     return render_template("login.html", form=login_form)
 
 @app.route('/logout', methods=['GET'])
@@ -64,6 +66,7 @@ def reset_password_request():
     form = ResetPasswordRequestForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
+        db.session.commit()
         if user:
             send_password_reset_email(user)
         flash("Check your email for instructions on how to reset your password", 'info')
@@ -90,9 +93,10 @@ def reset_password(token):
 @app.route('/lobby', methods=['GET', 'POST'])
 def lobby():
     q = 'SELECT t1.roomname, t1.password, t1.status, t2.count FROM games t1 JOIN (SELECT a.roomname, COUNT(a.roomname) FROM rooms a GROUP BY a.roomname) t2 ON t1.roomname = t2.roomname'
-    rows = db.session.execute(q).fetchall()
-    data = {'rows': [dict(row) for row in rows]}
-    return render_template('lobby.html', data=data)
+    query = db.session.execute(q).fetchall()
+    response = {'rows': [dict(row) for row in query]}
+    db.session.commit()
+    return render_template('lobby.html', rows=response['rows'])
 
 @app.route('/profile/<username>')
 def profile(username):
@@ -100,12 +104,13 @@ def profile(username):
         flash("Please login to access your profile", "danger")
         return redirect(url_for('login'))
     rooms = Room.query.filter_by(player=current_user.id).all()
-    print(f'\n{rooms}\n')
-    return render_template('profile.html')
+    db.session.commit()
+    return render_template('profile.html', rooms=rooms)
 
 @app.route('/create', methods=['GET', 'POST'])
 def create():
     if current_user.is_anonymous:
+        flash("Please login to create a game", "danger")
         return redirect(url_for('login'))
     create_form = CreateRoomForm()
     if create_form.validate_on_submit():
@@ -113,8 +118,10 @@ def create():
         password = create_form.password.data
         game.add_player(current_user.username)
         gameroom = GameRoom(roomname=roomname, password=password, host=current_user.id, game=game.serialize())
-        room = Room(roomname=roomname, player=current_user.id)
-        db.session.add_all([gameroom, room])
+        db.session.add(gameroom)
+        db.session.commit()
+        room = Room(roomname=roomname, player=current_user.id, room_id=gameroom.id)
+        db.session.add(room)
         db.session.commit()
         return redirect(url_for('room', room_id=gameroom.id))
     return render_template('create.html', form=create_form)
@@ -122,12 +129,32 @@ def create():
 @app.route('/join', methods=['GET', 'POST'])
 def join():
     if current_user.is_anonymous:
+        flash("Please login to join a game", "danger")
         return redirect(url_for('login'))
     join_form = JoinRoomForm()
     if join_form.validate_on_submit():
         roomname = join_form.roomname.data
-        room = Room(roomname=roomname, player=current_user.id)
         gameroom = GameRoom.query.filter_by(roomname=roomname).first()
+        room = Room(roomname=roomname, player=current_user.id, room_id=gameroom.id)
+        game.update_game(gameroom.game)
+        game.add_player(current_user.username)
+        gameroom.update_game(game.serialize())
+        db.session.add_all([gameroom, room])
+        db.session.commit()
+        return redirect(url_for('room', room_id=gameroom.id))
+    return render_template('join.html', form=join_form)
+
+@app.route('/invite/<invitation>', methods=['GET', 'POST'])
+def invite(invitation):
+    if current_user.is_anonymous:
+        flash("Please login to join a game", "danger")
+        return redirect(url_for('login'))
+    join_form = JoinRoomForm() 
+    join_form.roomname.data = invitation
+    if join_form.validate_on_submit():
+        roomname = join_form.roomname.data
+        gameroom = GameRoom.query.filter_by(roomname=roomname).first()
+        room = Room(roomname=roomname, player=current_user.id, room_id=gameroom.id)
         game.update_game(gameroom.game)
         game.add_player(current_user.username)
         gameroom.update_game(game.serialize())
@@ -143,9 +170,11 @@ def room(room_id):
         return redirect(url_for('login'))
     else:
         room = GameRoom.query.filter_by(id=room_id).first()
+        db.session.commit()
         if room:
             game.update_game(room.game)
             present = Room.query.filter_by(roomname=room.roomname, player=current_user.id).first()
+            db.session.commit()
             if present:
                 return render_template('game.html', username=current_user.username, room=room.id)
         else:

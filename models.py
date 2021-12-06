@@ -50,6 +50,7 @@ class Room(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     roomname = db.Column(db.String(), nullable=False)
     player = db.Column(db.Integer, nullable=False)
+    room_id = db.Column(db.Integer, nullable=False)
 
 # game logic
 
@@ -101,7 +102,7 @@ class Game:
         self.current_player = next(self.lineup)
 
     def add_player(self, player):
-        if player not in self.players:
+        if player not in [x.username for x in self.players]:
             self.players.append(Player(player))
             if len(self.players) == 1:
                 self.current_player = next(self.lineup)
