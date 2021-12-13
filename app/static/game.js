@@ -191,7 +191,6 @@ socket.on('times_up', data => {
 });
 
 socket.on('answer', data => {
-    console.log(`${username}, ${data.current_player}`);
     timesUp();
     if (data.round_index === 1 && data.current_player === username) {
         document.getElementById('vetobtn').hidden = false;

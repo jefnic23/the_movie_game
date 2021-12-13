@@ -13,16 +13,18 @@
             <tbody>
                 {% if rows %}
                     {% for row in rows %}
-                        <tr>
-                            <td><a class="btn btn-default" role="button" href="{{ url_for('invite', invitation=row.roomname) }}">Join</a></td>
-                            <td>{{ row.roomname }}</td>
-                            <td>{{ row.count }}</td>
-                            {% if row.password %}
-                                <td>Locked</td>
-                            {% else %}
-                                <td>Unlocked</td>
-                            {% endif %}
-                        </tr>
+                        {% if row.status %}
+                            <tr>
+                                <td><a class="btn btn-default" role="button" href="{{ url_for('invite', invitation=row.roomname) }}">Join</a></td>
+                                <td>{{ row.roomname }}</td>
+                                <td>{{ row.count }}</td>
+                                {% if row.password %}
+                                    <td>Locked</td>
+                                {% else %}
+                                    <td>Unlocked</td>
+                                {% endif %}
+                            </tr>
+                        {% endif %}
                     {% endfor %}
                 {% else %}
                     <tr>

@@ -1,18 +1,24 @@
-from flask import render_template, redirect, url_for, flash
+from flask import render_template, redirect, url_for, flash, session
+from flask_session import Session
 from flask_login import LoginManager, login_user, current_user, logout_user
 from flask_bootstrap import Bootstrap
 from flask_socketio import SocketIO, send, emit, join_room, leave_room
+from sqlalchemy.orm.session import SessionTransaction
 from wtform_fields import *
 from models import *
-import json
 from app.email import send_password_reset_email
 from app import app
 
-game = Game()
+Session(app)
 bootstrap = Bootstrap(app)
 socketio = SocketIO(app)
 login = LoginManager(app)
 login.init_app(app)
+
+# instantiate game class
+game = Game()
+
+#####
 
 @login.user_loader
 def load_user(id):
@@ -115,13 +121,11 @@ def create():
     create_form = CreateRoomForm()
     if create_form.validate_on_submit():
         roomname = create_form.roomname.data
-        password = create_form.password.data
+        password = create_form.password.data  
         game.add_player(current_user.username)
-        gameroom = GameRoom(roomname=roomname, password=password, host=current_user.id, game=game.serialize())
-        db.session.add(gameroom)
-        db.session.commit()
+        gameroom = GameRoom(roomname=roomname, password=password, host=current_user.id)
         room = Room(roomname=roomname, player=current_user.id, room_id=gameroom.id)
-        db.session.add(room)
+        db.session.add_all([gameroom, room])
         db.session.commit()
         return redirect(url_for('room', room_id=gameroom.id))
     return render_template('create.html', form=create_form)
@@ -136,10 +140,8 @@ def join():
         roomname = join_form.roomname.data
         gameroom = GameRoom.query.filter_by(roomname=roomname).first()
         room = Room(roomname=roomname, player=current_user.id, room_id=gameroom.id)
-        game.update_game(gameroom.game)
         game.add_player(current_user.username)
-        gameroom.update_game(game.serialize())
-        db.session.add_all([gameroom, room])
+        db.session.add(room)
         db.session.commit()
         return redirect(url_for('room', room_id=gameroom.id))
     return render_template('join.html', form=join_form)
@@ -155,10 +157,8 @@ def invite(invitation):
         roomname = join_form.roomname.data
         gameroom = GameRoom.query.filter_by(roomname=roomname).first()
         room = Room(roomname=roomname, player=current_user.id, room_id=gameroom.id)
-        game.update_game(gameroom.game)
         game.add_player(current_user.username)
-        gameroom.update_game(game.serialize())
-        db.session.add_all([gameroom, room])
+        db.session.add_all(room)
         db.session.commit()
         return redirect(url_for('room', room_id=gameroom.id))
     return render_template('join.html', form=join_form)
@@ -170,14 +170,15 @@ def room(room_id):
         return redirect(url_for('login'))
     else:
         room = GameRoom.query.filter_by(id=room_id).first()
-        db.session.commit()
         if room:
-            game.update_game(room.game)
             present = Room.query.filter_by(roomname=room.roomname, player=current_user.id).first()
             db.session.commit()
             if present:
                 return render_template('game.html', username=current_user.username, room=room.id)
+            else:
+                return redirect(url_for('invite', invitation=room.roomname))
         else:
+            db.session.commit()
             flash("Please join or create a room", "danger")
             return redirect(url_for('lobby'))
 
@@ -186,20 +187,20 @@ def room(room_id):
 @socketio.on('join')
 def on_join(data):
     username = data['username']
-    room = data['room']
-    join_room(room)
-    emit('joined', {'username': username, "players": [player.serialize() for player in game.players], "current_player": game.current_player.username, 'room': room}, room=room)
+    join_room(data['room'])
+    emit('joined', {'username': username, "players": [player.serialize() for player in game.players], "current_player": game.current_player.username, 'room': data['room']}, room=data['room'])
+
+# write socket event "begin" that changes gameroom status to false
 
 @socketio.on('search')
-def on_search(data):
+def on_search(data): 
     player = game.find_player(data['username'])
     guess = data['guess']
-    room = data['room']
     if game.round_index == 0:
         game.add_to_round(guess)
     else:
         game.check_answer(guess, player)
-    emit("answer", {"answer": guess, "player": player.username, "score": player.rollcall, "current_player": game.current_player.username, "round_index": game.round_index, 'round_over': game.round_over}, room=room)
+    emit("answer", {"answer": guess, "player": player.username, "score": player.rollcall, "current_player": game.current_player.username, "round_index": game.round_index, 'round_over': game.round_over}, room=data['room'])
 
 @socketio.on("veto")
 def on_veto(data):
@@ -214,9 +215,8 @@ def on_veto(data):
 @socketio.on('noTime')
 def no_time(data):
     player = game.find_player(data['current_player'])
-    room = data['room']
     game.times_up(game.current_player)
-    emit('times_up', {'player': player.username, "score": player.rollcall, "current_player": game.current_player.username}, room=room)
+    emit('times_up', {'player': player.username, "score": player.rollcall, "current_player": game.current_player.username}, room=data['room'])
 
 @socketio.on('restart')
 def on_restart():

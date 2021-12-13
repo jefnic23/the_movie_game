@@ -4,10 +4,11 @@ from flask_login import UserMixin
 from passlib.hash import pbkdf2_sha256
 from time import time
 from itertools import cycle
-import jwt, json, tmdbsimple as tmdb
+import jwt, tmdbsimple as tmdb
 from app import app
 
 db = SQLAlchemy()
+app.config['SESSION_SQLALCHEMY'] = db
 
 class User(UserMixin, db.Model):
     __tablename__ = "users"
@@ -40,10 +41,6 @@ class GameRoom(db.Model):
     password = db.Column(db.String())
     host = db.Column(db.Integer, nullable=False)
     status = db.Column(db.Boolean, nullable=False, default=True)
-    game = db.Column(db.JSON, nullable=False)
-
-    def update_game(self, game):
-        self.game = game
 
 class Room(db.Model):
     __tablename__ = 'rooms'
@@ -66,29 +63,6 @@ class Game:
         self.lineup = cycle(self.players)
         self.current_player = ''
 
-    def update_game(self, game):
-        game = json.loads(game)
-        self.players = []
-        for player in game['players']:
-            player = json.loads(player)
-            updated_player = Player(player['username'])
-            updated_player._index = player['_index']
-            updated_player.rollcall = player['rollcall']
-            if updated_player not in self.players:
-                self.players.append(updated_player)
-        self.round = game['round']
-        self.round_index = game['round_index']
-        self.collection = game['collection']
-        self.round_over = game['round_over']
-        self.game_over = game['game_over']
-        self.lineup = cycle(self.players)
-        current_player = json.loads(game['current_player'])
-        updated_current_player = Player(current_player['username'])
-        updated_current_player._index = current_player['_index']
-        updated_current_player.rollcall = current_player['rollcall']
-        self.current_player = updated_current_player
-        self.current_player = next(self.lineup)
-
     def reset_game(self):
         self.round = []
         self.round_index = 0
@@ -102,13 +76,13 @@ class Game:
         self.current_player = next(self.lineup)
 
     def add_player(self, player):
-        if player not in [x.username for x in self.players]:
+        if player not in [p.username for p in self.players]:
             self.players.append(Player(player))
             if len(self.players) == 1:
                 self.current_player = next(self.lineup)
 
     def del_player(self, player):
-        self.players = [p for p in self.players if p['username'] != player]
+        self.players = [p for p in self.players if p.username != player]
 
     def add_to_round(self, search):
         self.add_collection(search)
@@ -160,15 +134,6 @@ class Game:
         self.round_over = True
         if self.current_player.rollcall == 'BOMB':
             self.del_player(player)
-
-    def find_player(self, player):
-        return [p for p in self.players if p.username == player][0]
-
-    def serialize(self):
-        default = lambda o: f"<<non-serializable: {type(o).__qualname__}>>"
-        self.players = [player.serialize() for player in self.players]
-        self.current_player = self.current_player.serialize()
-        return json.dumps(self.__dict__, default=default)
     
 class Player:
     def __init__(self, username):
@@ -181,7 +146,3 @@ class Player:
         if self.rollcall != 'BOMB':
             self.rollcall += self.BOMB[self._index]
             self._index += 1
-
-    def serialize(self):
-        default = lambda o: f"<<non-serializable: {type(o).__qualname__}>>"
-        return json.dumps(self.__dict__, default=default)
